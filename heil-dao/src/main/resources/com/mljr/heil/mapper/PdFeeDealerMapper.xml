@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.PdFeeDealerMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.PdFeeDealer" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="res_id" property="resId" jdbcType="INTEGER" />
+    <result column="dealer_code" property="dealerCode" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, res_id, dealer_code
+  </sql>
+
+  <sql id="queryCondition">
+    <if test="form != null " >
+      <if test="form.name != null">
+        and d.DEALER_NAME LIKE concat('%',#{form.name},'%')
+      </if>
+      <if test="form.code != null">
+        and d.DEALER_CODE=#{form.code}
+      </if>
+      <if test="form.saleArea != null">
+        and d.sale_area = '${form.saleArea}'
+      </if>
+      <if test="form.province != null">
+        and d.province = '${form.province}'
+      </if>
+      <if test="form.city != null">
+        and d.city = '${form.city}'
+      </if>
+      <if test="form.dealerType != null">
+        and d.dealer_type = '${form.dealerType}'
+      </if>
+      <if test="form.status != null">
+        and d.status = '${form.status}'
+      </if>
+    </if>
+  </sql>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from pd_fee_dealer
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from pd_fee_dealer
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+  <!-- 根据规则ID 删除相关记录 -->
+  <delete id="deleteByRuleId" parameterType="java.lang.Integer" >
+    delete from pd_fee_dealer where res_id = #{ruleId}
+  </delete>
+
+  <insert id="insert" parameterType="com.mljr.heil.entity.PdFeeDealer" useGeneratedKeys="true" keyProperty="id">
+    insert into pd_fee_dealer (id, res_id, dealer_code
+      )
+    values (#{id,jdbcType=INTEGER}, #{resId,jdbcType=INTEGER}, #{dealerCode,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.PdFeeDealer" useGeneratedKeys="true" keyProperty="id">
+    insert into pd_fee_dealer
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="resId != null" >
+        res_id,
+      </if>
+      <if test="dealerCode != null" >
+        dealer_code,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="resId != null" >
+        #{resId,jdbcType=INTEGER},
+      </if>
+      <if test="dealerCode != null" >
+        #{dealerCode,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.PdFeeDealer" >
+    update pd_fee_dealer
+    <set >
+      <if test="resId != null" >
+        res_id = #{resId,jdbcType=INTEGER},
+      </if>
+      <if test="dealerCode != null" >
+        dealer_code = #{dealerCode,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.PdFeeDealer" >
+    update pd_fee_dealer
+    set res_id = #{resId,jdbcType=INTEGER},
+      dealer_code = #{dealerCode,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <insert id="batchInsert" parameterType="java.util.List">
+    insert into pd_fee_dealer (res_id, dealer_code) values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.resId}, #{item.dealerCode} )
+    </foreach>
+  </insert>
+  <!-- 批量新增，忽略已存在数据 -->
+  <insert id="batchInsertIgnore" parameterType="java.util.List">
+    insert ignore into pd_fee_dealer (res_id, dealer_code) values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.resId}, #{item.dealerCode} )
+    </foreach>
+  </insert>
+  <delete id="batchDelete" parameterType="com.mljr.heil.form.PdFeeDealerForm">
+    delete from pd_fee_dealer
+    <where>
+      <if test="ruleId != null and ruleId != ''">
+        AND res_id = ${ruleId}
+      </if>
+
+      <if test="ruleIdScope != null">
+        and res_id in
+        <foreach collection="ruleIdScope" item="item" index="index" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+      </if>
+
+      <if test="dealerScopes != null">
+        and dealer_code in
+        <foreach collection="dealerScopes" item="item" index="index" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+      </if>
+
+    </where>
+  </delete>
+</mapper>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.fund.FundProductMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.fund.FundProduct" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="fund_id" property="fundId" jdbcType="VARCHAR" />
+    <result column="product_id" property="productId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id,fund_id,product_id
+  </sql>
+
+  <sql id="ProductCondition">
+     <if test="form.productId != null">
+       AND a.P_ID = #{form.productId}
+     </if>
+    <if test="form.productName != null and form.productName != ''">
+      AND a.P_NAME LIKE CONCAT('%',#{form.productName},'%')
+    </if>
+    <if test="form.productTypeId != null">
+      AND b.P_TYPE_ID = #{form.productTypeId}
+    </if>
+  </sql>
+
+  <select id="selectBindProductByParams" resultType="com.mljr.heil.entity.Product" parameterType="com.lyqc.base.page.PageForm">
+    select a.P_ID AS pId,a.PRODUCT_COE AS productCoe, a.P_NAME AS pName, b.P_CLASS_NAME AS typeName
+    from ca_product a join ca_product_type b on a.TYPE_ = b.P_TYPE_ID
+    where  EXISTS (select 1 from pd_fund_product f where f.product_id=a.P_ID AND f.fund_id = #{form.fundId})
+    <include refid="ProductCondition"/>
+    limit #{start},#{limit}
+  </select>
+
+  <select id="getBindProductCount" resultType="java.lang.Integer" parameterType="com.lyqc.base.page.PageForm">
+    select COUNT(1)
+    from ca_product a join ca_product_type b on a.TYPE_ = b.P_TYPE_ID
+    where  EXISTS (select 1 from pd_fund_product f where f.product_id=a.P_ID AND f.fund_id = #{form.fundId} )
+    <include refid="ProductCondition"/>
+  </select>
+
+  <select id="selectNotBindProductByParams" resultType="com.mljr.heil.entity.Product" parameterType="com.lyqc.base.page.PageForm">
+    select a.P_ID AS pId,a.PRODUCT_COE AS productCoe, a.P_NAME AS pName, b.P_CLASS_NAME AS typeName
+    from ca_product a join ca_product_type b on a.TYPE_ = b.P_TYPE_ID
+    where NOT EXISTS (select 1 from pd_fund_product f where f.product_id=a.P_ID AND f.fund_id = #{form.fundId} )
+    <include refid="ProductCondition"/>
+    limit #{start},#{limit}
+  </select>
+
+  <select id="getNotBindProductCount" resultType="java.lang.Integer" parameterType="com.lyqc.base.page.PageForm">
+    select COUNT(1)
+    from ca_product a join ca_product_type b on a.TYPE_ = b.P_TYPE_ID
+    where NOT EXISTS (select 1 from pd_fund_product f where f.product_id=a.P_ID AND f.fund_id = #{form.fundId} )
+    <include refid="ProductCondition"/>
+  </select>
+
+</mapper>

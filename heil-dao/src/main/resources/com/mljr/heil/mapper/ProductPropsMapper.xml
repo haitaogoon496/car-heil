@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.ProductPropsMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.ProductProps" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="P_ID" property="pId" jdbcType="INTEGER" />
+    <result column="PROP_NAME" property="propName" jdbcType="VARCHAR" />
+    <result column="PROP_VALUE" property="propValue" jdbcType="VARCHAR" />
+    <result column="desp" property="desp" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, P_ID, PROP_NAME, PROP_VALUE, desp
+  </sql>
+
+
+  <sql id="queryCondition">
+    <where>
+      <if test="form != null " >
+        <if test="form.productId != null">
+          and P_ID=#{form.productId}
+        </if>
+        <if test="form.propName != null">
+          and PROP_NAME=#{form.propName}
+        </if>
+      </if>
+    </where>
+  </sql>
+
+  <sql id="queryWhere">
+    <where>
+      <if test="productId != null">
+        and P_ID=#{productId}
+      </if>
+      <if test="propName != null">
+        and PROP_NAME=#{propName}
+      </if>
+      <if test="productIdList != null">
+        and P_ID IN
+        <foreach collection="productIdList" item="pId" open="(" separator="," close=")">
+          #{pId}
+        </foreach>
+      </if>
+    </where>
+  </sql>
+
+  <select id="queryList" resultMap="BaseResultMap" parameterType="com.mljr.heil.form.ProductPropsForm">
+    select
+    <include refid="Base_Column_List" />
+    from ca_product_props
+    <include refid="queryWhere"/>
+  </select>
+
+  <select id="pageQuery" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    select
+    <include refid="Base_Column_List" />
+    from ca_product_props
+    <include refid="queryCondition"/>
+    limit #{limit} offset #{start}
+  </select>
+
+  <select id="queryCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select COUNT(1) from ca_product_props <include refid="queryCondition"/>
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from ca_product_props
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from ca_product_props
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <delete id="delByForm" parameterType="com.mljr.heil.form.ProductPropsForm" >
+    delete from ca_product_props
+    <include refid="queryWhere"/>
+  </delete>
+  <insert id="insert" parameterType="com.mljr.heil.entity.ProductProps" useGeneratedKeys="true" keyProperty="id">
+    insert into ca_product_props (id, P_ID, PROP_NAME, 
+      PROP_VALUE, desp)
+    values (#{id,jdbcType=BIGINT}, #{pId,jdbcType=INTEGER}, #{propName,jdbcType=VARCHAR}, 
+      #{propValue,jdbcType=VARCHAR}, #{desp,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.ProductProps" useGeneratedKeys="true" keyProperty="id">
+    insert into ca_product_props
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="pId != null" >
+        P_ID,
+      </if>
+      <if test="propName != null" >
+        PROP_NAME,
+      </if>
+      <if test="propValue != null" >
+        PROP_VALUE,
+      </if>
+      <if test="desp != null" >
+        desp,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="pId != null" >
+        #{pId,jdbcType=INTEGER},
+      </if>
+      <if test="propName != null" >
+        #{propName,jdbcType=VARCHAR},
+      </if>
+      <if test="propValue != null" >
+        #{propValue,jdbcType=VARCHAR},
+      </if>
+      <if test="desp != null" >
+        #{desp,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.ProductProps" >
+    update ca_product_props
+    <set >
+      <if test="pId != null" >
+        P_ID = #{pId,jdbcType=INTEGER},
+      </if>
+      <if test="propName != null" >
+        PROP_NAME = #{propName,jdbcType=VARCHAR},
+      </if>
+      <if test="propValue != null" >
+        PROP_VALUE = #{propValue,jdbcType=VARCHAR},
+      </if>
+      <if test="desp != null" >
+        desp = #{desp,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.ProductProps" >
+    update ca_product_props
+    set P_ID = #{pId,jdbcType=INTEGER},
+      PROP_NAME = #{propName,jdbcType=VARCHAR},
+      PROP_VALUE = #{propValue,jdbcType=VARCHAR},
+      desp = #{desp,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>car-heil</artifactId>
+        <groupId>com.mljr</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>heil-service</artifactId>
+    <name>heil-service</name>
+
+    <properties>
+        <heil-dao.version>1.0-SNAPSHOT</heil-dao.version>
+        <heil-common.version>1.0-SNAPSHOT</heil-common.version>
+        <car.staff.version>1.0.2-SNAPSHOT</car.staff.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.mljr</groupId>
+            <artifactId>heil-dao</artifactId>
+            <version>${heil-dao.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.mljr</groupId>
+            <artifactId>heil-common</artifactId>
+            <version>${heil-common.version}</version>
+        </dependency>
+        <!--引入car-staff -->
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.0</version>
+        </dependency>
+    </dependencies>
+
+</project>

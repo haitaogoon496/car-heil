@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.UserLogMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.UserLog" >
+    <id column="FLOW_ID" property="flowId" jdbcType="BIGINT" />
+    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+    <result column="USER_ID" property="userId" jdbcType="INTEGER" />
+    <result column="AUTH_MODEL" property="authModel" jdbcType="INTEGER" />
+    <result column="AUTH_DATE" property="authDate" jdbcType="TIMESTAMP" />
+    <result column="AUTH_TYPE" property="authType" jdbcType="CHAR" />
+    <result column="auth_detail" property="authDetail" jdbcType="LONGVARCHAR" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    FLOW_ID, USER_NAME, USER_ID, AUTH_MODEL, AUTH_DATE, AUTH_TYPE,auth_detail
+  </sql>
+
+  <sql id="queryCondition">
+    <where>
+      <if test="form != null " >
+        <if test="form.authModel != null">
+          and l.AUTH_MODEL = #{form.authModel}
+        </if>
+        <if test="form.userName != null and form.userName !=''">
+          and l.USER_NAME = #{form.userName}
+        </if>
+        <if test="form.beginTime != null">
+          and l.AUTH_DATE >= #{form.beginTime}
+        </if>
+        <if test="form.endTime != null">
+          <![CDATA[ and l.AUTH_DATE <= #{form.endTime} ]]>
+        </if>
+      </if>
+    </where>
+  </sql>
+
+  <select id="pageQuery" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    select
+    <include refid="Base_Column_List" />
+    from pd_user_log l
+    <include refid="queryCondition"/>
+    order by l.FLOW_ID desc
+    limit #{limit} offset #{start}
+  </select>
+
+  <select id="queryCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select COUNT(1) from pd_user_log l <include refid="queryCondition"/>
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from pd_user_log
+    where FLOW_ID = #{flowId,jdbcType=BIGINT}
+  </select>
+
+  <insert id="insert" parameterType="com.mljr.heil.entity.UserLog" >
+    insert into pd_user_log (FLOW_ID, USER_NAME, USER_ID,AUTH_MODEL, AUTH_DATE, AUTH_TYPE,auth_detail)
+    values (#{flowId,jdbcType=BIGINT}, #{userName,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER}, 
+      #{authModel,jdbcType=INTEGER}, #{authDate,jdbcType=VARCHAR}, #{authType,jdbcType=CHAR},
+      #{authDetail,jdbcType=LONGVARCHAR})
+  </insert>
+
+</mapper>

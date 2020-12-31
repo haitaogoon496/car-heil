@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.fund.PdFundRuleMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.fund.PdFundRule" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="fund_id" property="fundId" jdbcType="INTEGER" />
+    <result column="rule_no" property="ruleNo" jdbcType="VARCHAR" />
+    <result column="rule_name" property="ruleName" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+    <result column="modify_user_name" property="modifyUserName" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, fund_id, rule_no, rule_name, status, remark, create_time, create_user_name, modify_time, 
+    modify_user_name
+  </sql>
+
+
+  <sql id="queryWhere">
+    <where>
+      <if test="form != null " >
+
+        <if test="form.id != null and form.id !=''">
+          and id = #{form.id}
+        </if>
+        <if test="form.ruleNo != null and form.ruleNo !=''">
+          and rule_no = #{form.ruleNo}
+        </if>
+        <if test="form.ruleName != null and form.ruleName !=''">
+          and rule_name like CONCAT('%',#{form.ruleName},'%')
+        </if>
+        <if test="form.fundId != null and form.fundId !=''">
+          and fund_id = #{form.fundId}
+        </if>
+        <if test="form.status != null">
+          and status = #{form.status}
+        </if>
+        <if test="form.createTimeBegin != null">
+          and create_time >= #{form.createTimeBegin}
+        </if>
+        <if test="form.createTimeEnd != null">
+          and #{form.createTimeEnd} >= create_time
+        </if>
+        <if test="form.modifyTimeBegin != null">
+          and modify_time >= #{form.modifyTimeBegin}
+        </if>
+        <if test="form.modifyTimeEnd != null">
+          and #{form.modifyTimeEnd} >= modify_time
+        </if>
+      </if>
+    </where>
+  </sql>
+
+  <select id="pageQuery" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    select
+    <include refid="Base_Column_List" />
+    from pd_fund_rule r
+    <include refid="queryWhere"/>
+    ORDER BY modify_time DESC
+    limit #{limit} offset #{start}
+  </select>
+
+  <select id="queryCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select
+    COUNT(1)
+    from pd_fund_rule r
+    <include refid="queryWhere"/>
+  </select>
+
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from pd_fund_rule
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from pd_fund_rule
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mljr.heil.entity.fund.PdFundRule" useGeneratedKeys="true" keyProperty="id">
+    insert into pd_fund_rule (id, fund_id, rule_no, 
+      rule_name, status, remark, 
+      create_time, create_user_name, modify_time, 
+      modify_user_name)
+    values (#{id,jdbcType=INTEGER}, #{fundId,jdbcType=INTEGER}, #{ruleNo,jdbcType=VARCHAR}, 
+      #{ruleName,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT}, #{remark,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{createUserName,jdbcType=VARCHAR}, #{modifyTime,jdbcType=TIMESTAMP}, 
+      #{modifyUserName,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.fund.PdFundRule" useGeneratedKeys="true" keyProperty="id">
+    insert into pd_fund_rule
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="fundId != null" >
+        fund_id,
+      </if>
+      <if test="ruleNo != null" >
+        rule_no,
+      </if>
+      <if test="ruleName != null" >
+        rule_name,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="createUserName != null" >
+        create_user_name,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+      <if test="modifyUserName != null" >
+        modify_user_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="fundId != null" >
+        #{fundId,jdbcType=INTEGER},
+      </if>
+      <if test="ruleNo != null" >
+        #{ruleNo,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleName != null" >
+        #{ruleName,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserName != null" >
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyUserName != null" >
+        #{modifyUserName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.fund.PdFundRule" >
+    update pd_fund_rule
+    <set >
+      <if test="fundId != null" >
+        fund_id = #{fundId,jdbcType=INTEGER},
+      </if>
+      <if test="ruleNo != null" >
+        rule_no = #{ruleNo,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleName != null" >
+        rule_name = #{ruleName,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserName != null" >
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyUserName != null" >
+        modify_user_name = #{modifyUserName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.fund.PdFundRule" >
+    update pd_fund_rule
+    set fund_id = #{fundId,jdbcType=INTEGER},
+      rule_no = #{ruleNo,jdbcType=VARCHAR},
+      rule_name = #{ruleName,jdbcType=VARCHAR},
+      status = #{status,jdbcType=TINYINT},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      modify_user_name = #{modifyUserName,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

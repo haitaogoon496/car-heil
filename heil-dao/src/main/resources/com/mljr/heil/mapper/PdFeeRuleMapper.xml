@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.PdFeeRuleMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.PdFeeRule" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="classify" property="classify" jdbcType="TINYINT" />
+    <result column="rule_name" property="ruleName" jdbcType="VARCHAR" />
+    <result column="rate_value" property="rateValue" jdbcType="DECIMAL" />
+    <result column="loan_period" property="loanPeriod" jdbcType="VARCHAR" />
+    <result column="license_type" property="licenseType" jdbcType="VARCHAR" />
+    <result column="is_all_dealer" property="isAllDealer" jdbcType="TINYINT" />
+    <result column="is_all_product" property="isAllProduct" jdbcType="TINYINT" />
+    <result column="sale_price_min" property="salePriceMin" jdbcType="DECIMAL" />
+    <result column="sale_price_max" property="salePriceMax" jdbcType="DECIMAL" />
+    <result column="car_loan_amount_min" property="carLoanAmountMin" jdbcType="DECIMAL" />
+    <result column="car_loan_amount_max" property="carLoanAmountMax" jdbcType="DECIMAL" />
+    <result column="payment_scale_min" property="paymentScaleMin" jdbcType="DECIMAL" />
+    <result column="payment_scale_max" property="paymentScaleMax" jdbcType="DECIMAL" />
+    <result column="vehicle_miles_min" property="vehicleMilesMin" jdbcType="DECIMAL" />
+    <result column="vehicle_miles_max" property="vehicleMilesMax" jdbcType="DECIMAL" />
+    <result column="is_old" property="isOld" jdbcType="VARCHAR" />
+    <result column="is_lcv" property="isLcv" jdbcType="VARCHAR" />
+    <result column="extend_props" property="extendProps" jdbcType="VARCHAR" />
+    <result column="vehicle_age_min" property="vehicleAgeMin" jdbcType="DECIMAL" />
+    <result column="vehicle_age_max" property="vehicleAgeMax" jdbcType="DECIMAL" />
+    <result column="rebate_value" property="rebateValue" jdbcType="DECIMAL" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, classify, rule_name, rate_value, loan_period,license_type,is_all_dealer,is_all_product,
+    sale_price_min, sale_price_max, car_loan_amount_min, car_loan_amount_max,
+    payment_scale_min, payment_scale_max, vehicle_miles_min, vehicle_miles_max, is_old,
+    is_lcv, extend_props, vehicle_age_min, vehicle_age_max,rebate_value ,status
+  </sql>
+
+  <sql id="queryCondition">
+    <where>
+      <if test="form != null " >
+        <if test="form.id != null and form.id !=''">
+          and r.id = #{form.id}
+        </if>
+        <if test="form.name != null and form.name != ''">
+          and r.rule_name LIKE concat('%',#{form.name},'%')
+        </if>
+        <if test="form.classify != null">
+          and r.classify = #{form.classify}
+        </if>
+        <if test="form.dealerCode != null and form.dealerCode != '' and form.bindFlag == true">
+          AND ( EXISTS (
+          SELECT
+          1
+          FROM
+          pd_fee_dealer b
+          WHERE
+          b.res_id = r.id
+          AND  b.dealer_code = #{form.dealerCode}
+          )
+          or r.IS_ALL_DEALER = 1)
+        </if>
+        <if test="form.dealerCode != null and form.dealerCode != '' and form.bindFlag != true">
+          AND NOT EXISTS (
+          SELECT
+          1
+          FROM
+          pd_fee_dealer b
+          WHERE
+          b.res_id = r.id
+          AND  b.dealer_code = #{form.dealerCode}
+          )
+          AND r.IS_ALL_DEALER = 0
+        </if>
+        <if test="form.tag != null and form.tag !=''">
+          AND EXISTS ( SELECT 1 FROM pd_tags b WHERE b.source_id = r.id AND b.buz_type = #{form.buzType} AND FIND_IN_SET(#{form.tag},b.tags))
+        </if>
+        <if test="form.isOld != null and form.isOld !=''">
+          AND (
+          CASE
+          WHEN (isnull(r.IS_OLD)OR (r.IS_OLD = ''))
+          THEN
+          FIND_IN_SET( #{form.isOld}, '0,1')
+          ELSE
+          FIND_IN_SET( #{form.isOld}, r.IS_OLD)
+          END
+          )
+        </if>
+        <if test="form.isLcv != null and form.isLcv !=''">
+          AND (
+          CASE
+          WHEN (isnull(r.IS_LCV) OR (r.IS_LCV = ''))
+          THEN
+          FIND_IN_SET( #{form.isLcv}, '0,1,2,3')
+          ELSE
+          FIND_IN_SET( #{form.isLcv}, r.IS_LCV)
+          END
+          )
+        </if>
+        <if test="form.loanPeriod != null and form.loanPeriod !=''">
+          AND (
+          CASE
+          WHEN (isnull(r.loan_period)OR (r.loan_period = ''))
+          THEN
+          FIND_IN_SET(#{form.loanPeriod}, '6,12,18,24,30,36,42,48')
+          ELSE
+          FIND_IN_SET(#{form.loanPeriod}, r.loan_period)
+          END
+          )
+        </if>
+        <if test="form.tagList != null and form.tagList.size > 0">
+          AND EXISTS ( SELECT 1 FROM pd_tags b WHERE b.source_id = r.id AND b.buz_type = #{form.buzType}
+          <foreach collection="form.tagList" item="item" index="index">
+            AND FIND_IN_SET(#{item},b.tags)
+            <if test="index == form.tagList.size()-1">
+              )
+            </if>
+          </foreach>
+        </if>
+          <if test="form.status != null">
+              and r.status = #{form.status}
+          </if>
+      </if>
+    </where>
+  </sql>
+
+  <select id="pageQuery" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    select
+    <include refid="Base_Column_List" />
+    from pd_fee_rule r
+    <include refid="queryCondition"/>
+    limit #{limit} offset #{start}
+  </select>
+
+  <select id="queryCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select COUNT(1) from pd_fee_rule r
+    <include refid="queryCondition"/>
+  </select>
+
+  <select id="queryRulesUnBindProduct" resultType="com.mljr.heil.entity.PdFeeRule">
+    SELECT
+    a.id AS id,
+    a.rule_name AS ruleSeqName
+    FROM pd_fee_rule a
+    WHERE a.is_all_product = 0
+    AND a.status =1
+    AND a.classify = #{classify}  AND NOT EXISTS (
+    SELECT * from ca_product b
+    INNER JOIN pd_fee_product c ON b.p_id = c.product_id
+    WHERE c.res_id = a.id AND b.status = 1
+    )
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from pd_fee_rule
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+
+  <!-- 非分页查询 -->
+  <sql id="queryListCondition">
+    <where>
+      <if test="ruleIds != null">
+        and r.id in
+        <foreach collection="ruleIds" item="item" index="index" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+      </if>
+    </where>
+  </sql>
+
+  <select id="queryList" resultMap="BaseResultMap" parameterType="com.mljr.heil.form.PdFeeRuleForm" >
+    select
+    <include refid="Base_Column_List" />
+    from pd_fee_rule r
+    <include refid="queryListCondition"/>
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from pd_fee_rule
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mljr.heil.entity.PdFeeRule" keyProperty="id" useGeneratedKeys="true">
+    insert into pd_fee_rule (id, classify, rule_name, 
+      rate_value, loan_period, is_all_dealer,is_all_product, license_type, sale_price_min,
+      sale_price_max, car_loan_amount_min, car_loan_amount_max,
+      payment_scale_min, payment_scale_max, vehicle_miles_min,
+      vehicle_miles_max, is_old, is_lcv,
+      extend_props, vehicle_age_min, vehicle_age_max
+      )
+    values (#{id,jdbcType=INTEGER}, #{classify,jdbcType=TINYINT}, #{ruleName,jdbcType=VARCHAR},
+      #{rateValue,jdbcType=DECIMAL}, #{loanPeriod,jdbcType=VARCHAR}, #{isAllDealer,jdbcType=TINYINT},
+      #{isAllProduct,jdbcType=TINYINT}, #{licenseType,jdbcType=VARCHAR}, #{salePriceMin,jdbcType=DECIMAL},
+      #{salePriceMax,jdbcType=DECIMAL}, #{carLoanAmountMin,jdbcType=DECIMAL}, #{carLoanAmountMax,jdbcType=DECIMAL},
+      #{paymentScaleMin,jdbcType=DECIMAL}, #{paymentScaleMax,jdbcType=DECIMAL}, #{vehicleMilesMin,jdbcType=DECIMAL},
+      #{vehicleMilesMax,jdbcType=DECIMAL}, #{isOld,jdbcType=VARCHAR}, #{isLcv,jdbcType=VARCHAR},
+      #{extendProps,jdbcType=VARCHAR}, #{vehicleAgeMin,jdbcType=DECIMAL}, #{vehicleAgeMax,jdbcType=DECIMAL}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.PdFeeRule" keyProperty="id" useGeneratedKeys="true">
+    insert into pd_fee_rule
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="classify != null" >
+        classify,
+      </if>
+      <if test="ruleName != null" >
+        rule_name,
+      </if>
+      <if test="rateValue != null" >
+        rate_value,
+      </if>
+      <if test="loanPeriod != null" >
+        loan_period,
+      </if>
+      <if test="licenseType != null" >
+        license_type,
+      </if>
+      <if test="isAllDealer != null" >
+        is_all_dealer,
+      </if>
+      <if test="isAllProduct != null" >
+        is_all_product,
+      </if>
+      <if test="salePriceMin != null" >
+        sale_price_min,
+      </if>
+      <if test="salePriceMax != null" >
+        sale_price_max,
+      </if>
+      <if test="carLoanAmountMin != null" >
+        car_loan_amount_min,
+      </if>
+      <if test="carLoanAmountMax != null" >
+        car_loan_amount_max,
+      </if>
+      <if test="paymentScaleMin != null" >
+        payment_scale_min,
+      </if>
+      <if test="paymentScaleMax != null" >
+        payment_scale_max,
+      </if>
+      <if test="vehicleMilesMin != null" >
+        vehicle_miles_min,
+      </if>
+      <if test="vehicleMilesMax != null" >
+        vehicle_miles_max,
+      </if>
+      <if test="isOld != null" >
+        is_old,
+      </if>
+      <if test="isLcv != null" >
+        is_lcv,
+      </if>
+      <if test="extendProps != null" >
+        extend_props,
+      </if>
+      <if test="vehicleAgeMin != null" >
+        vehicle_age_min,
+      </if>
+      <if test="vehicleAgeMax != null" >
+        vehicle_age_max,
+      </if>
+      <if test="rebateValue != null" >
+        rebate_value,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="classify != null" >
+        #{classify,jdbcType=TINYINT},
+      </if>
+      <if test="ruleName != null" >
+        #{ruleName,jdbcType=VARCHAR},
+      </if>
+      <if test="rateValue != null" >
+        #{rateValue,jdbcType=DECIMAL},
+      </if>
+      <if test="loanPeriod != null" >
+        #{loanPeriod,jdbcType=VARCHAR},
+      </if>
+      <if test="licenseType != null" >
+        #{licenseType,jdbcType=VARCHAR},
+      </if>
+      <if test="isAllDealer != null" >
+        #{isAllDealer,jdbcType=TINYINT},
+      </if>
+      <if test="isAllProduct != null" >
+        #{isAllProduct,jdbcType=TINYINT},
+      </if>
+      <if test="salePriceMin != null" >
+        #{salePriceMin,jdbcType=DECIMAL},
+      </if>
+      <if test="salePriceMax != null" >
+        #{salePriceMax,jdbcType=DECIMAL},
+      </if>
+      <if test="carLoanAmountMin != null" >
+        #{carLoanAmountMin,jdbcType=DECIMAL},
+      </if>
+      <if test="carLoanAmountMax != null" >
+        #{carLoanAmountMax,jdbcType=DECIMAL},
+      </if>
+      <if test="paymentScaleMin != null" >
+        #{paymentScaleMin,jdbcType=DECIMAL},
+      </if>
+      <if test="paymentScaleMax != null" >
+        #{paymentScaleMax,jdbcType=DECIMAL},
+      </if>
+      <if test="vehicleMilesMin != null" >
+        #{vehicleMilesMin,jdbcType=DECIMAL},
+      </if>
+      <if test="vehicleMilesMax != null" >
+        #{vehicleMilesMax,jdbcType=DECIMAL},
+      </if>
+      <if test="isOld != null" >
+        #{isOld,jdbcType=VARCHAR},
+      </if>
+      <if test="isLcv != null" >
+        #{isLcv,jdbcType=VARCHAR},
+      </if>
+      <if test="extendProps != null" >
+        #{extendProps,jdbcType=VARCHAR},
+      </if>
+      <if test="vehicleAgeMin != null" >
+        #{vehicleAgeMin,jdbcType=DECIMAL},
+      </if>
+      <if test="vehicleAgeMax != null" >
+        #{vehicleAgeMax,jdbcType=DECIMAL},
+      </if>
+      <if test="rebateValue != null" >
+        #{rebateValue,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.PdFeeRule" >
+    update pd_fee_rule
+    <set >
+      <if test="classify != null" >
+        classify = #{classify,jdbcType=TINYINT},
+      </if>
+      <if test="ruleName != null" >
+        rule_name = #{ruleName,jdbcType=VARCHAR},
+      </if>
+      <if test="rateValue != null" >
+        rate_value = #{rateValue,jdbcType=DECIMAL},
+      </if>
+      <if test="loanPeriod != null" >
+        loan_period = #{loanPeriod,jdbcType=VARCHAR},
+      </if>
+      <if test="licenseType != null" >
+        license_type = #{licenseType,jdbcType=VARCHAR},
+      </if>
+      <if test="isAllDealer != null" >
+        is_all_dealer = #{isAllDealer,jdbcType=TINYINT},
+      </if>
+      <if test="isAllProduct != null" >
+        is_all_product = #{isAllProduct,jdbcType=TINYINT},
+      </if>
+      <if test="salePriceMin != null" >
+        sale_price_min = #{salePriceMin,jdbcType=DECIMAL},
+      </if>
+      <if test="salePriceMax != null" >
+        sale_price_max = #{salePriceMax,jdbcType=DECIMAL},
+      </if>
+      <if test="carLoanAmountMin != null" >
+        car_loan_amount_min = #{carLoanAmountMin,jdbcType=DECIMAL},
+      </if>
+      <if test="carLoanAmountMax != null" >
+        car_loan_amount_max = #{carLoanAmountMax,jdbcType=DECIMAL},
+      </if>
+      <if test="paymentScaleMin != null" >
+        payment_scale_min = #{paymentScaleMin,jdbcType=DECIMAL},
+      </if>
+      <if test="paymentScaleMax != null" >
+        payment_scale_max = #{paymentScaleMax,jdbcType=DECIMAL},
+      </if>
+      <if test="vehicleMilesMin != null" >
+        vehicle_miles_min = #{vehicleMilesMin,jdbcType=DECIMAL},
+      </if>
+      <if test="vehicleMilesMax != null" >
+        vehicle_miles_max = #{vehicleMilesMax,jdbcType=DECIMAL},
+      </if>
+      <if test="isOld != null" >
+        is_old = #{isOld,jdbcType=VARCHAR},
+      </if>
+      <if test="isLcv != null" >
+        is_lcv = #{isLcv,jdbcType=VARCHAR},
+      </if>
+      <if test="extendProps != null" >
+        extend_props = #{extendProps,jdbcType=VARCHAR},
+      </if>
+      <if test="vehicleAgeMin != null" >
+        vehicle_age_min = #{vehicleAgeMin,jdbcType=DECIMAL},
+      </if>
+      <if test="vehicleAgeMax != null" >
+        vehicle_age_max = #{vehicleAgeMax,jdbcType=DECIMAL},
+      </if>
+      <if test="rebateValue != null" >
+        rebate_value = #{rebateValue,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.PdFeeRule" >
+    update pd_fee_rule
+    set classify = #{classify,jdbcType=TINYINT},
+    rule_name = #{ruleName,jdbcType=VARCHAR},
+    rate_value = #{rateValue,jdbcType=DECIMAL},
+    loan_period = #{loanPeriod,jdbcType=VARCHAR},
+    license_type = #{licenseType,jdbcType=VARCHAR},
+    is_all_dealer = #{isAllDealer,jdbcType=TINYINT},
+    is_all_product = #{isAllProduct,jdbcType=TINYINT},
+    sale_price_min = #{salePriceMin,jdbcType=DECIMAL},
+    sale_price_max = #{salePriceMax,jdbcType=DECIMAL},
+    car_loan_amount_min = #{carLoanAmountMin,jdbcType=DECIMAL},
+    car_loan_amount_max = #{carLoanAmountMax,jdbcType=DECIMAL},
+    payment_scale_min = #{paymentScaleMin,jdbcType=DECIMAL},
+    payment_scale_max = #{paymentScaleMax,jdbcType=DECIMAL},
+    vehicle_miles_min = #{vehicleMilesMin,jdbcType=DECIMAL},
+    vehicle_miles_max = #{vehicleMilesMax,jdbcType=DECIMAL},
+    is_old = #{isOld,jdbcType=VARCHAR},
+    is_lcv = #{isLcv,jdbcType=VARCHAR},
+    extend_props = #{extendProps,jdbcType=VARCHAR},
+    vehicle_age_min = #{vehicleAgeMin,jdbcType=DECIMAL},
+    vehicle_age_max = #{vehicleAgeMax,jdbcType=DECIMAL}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+  <select id="queryPdFeeRulesForDealer" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    SELECT
+    r.*
+    FROM
+    pd_fee_rule r
+    <include refid="queryCondition"/>
+    <if test="paging == true">
+      limit #{limit} offset #{start}
+    </if>
+
+  </select>
+
+  <select id="queryPdFeeRulesForDealerCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select
+    COUNT(1)
+    FROM
+    pd_fee_rule r
+    <include refid="queryCondition"/>
+  </select>
+
+  <update id="modifyStatus" parameterType="com.mljr.heil.form.RuleStatusForm" >
+    update ${tableName}
+    set status = #{status,jdbcType=TINYINT}
+    where
+    <if test="classify == 7">
+      id
+    </if>
+    <if test="classify != 7">
+      RULE_SEQ
+    </if>
+    = #{ruleId,jdbcType=INTEGER}
+  </update>
+</mapper>

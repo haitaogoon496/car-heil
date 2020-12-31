@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.ProductTypeMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.ProductType" >
+    <id column="P_TYPE_ID" property="pTypeId" jdbcType="INTEGER" />
+    <result column="P_CLASS_CODE" property="pClassCode" jdbcType="VARCHAR" />
+    <result column="P_CLASS_NAME" property="pClassName" jdbcType="VARCHAR" />
+    <result column="P_DESC" property="pDesc" jdbcType="VARCHAR" />
+    <result column="STATUS" property="status" jdbcType="CHAR" />
+    <result column="CREATE_USER" property="createUser" jdbcType="VARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    P_TYPE_ID, P_CLASS_CODE, P_CLASS_NAME, P_DESC, STATUS, CREATE_USER, CREATE_TIME
+  </sql>
+
+
+
+  <sql id="queryCondition">
+    <where>
+      <if test="form != null " >
+        <if test="form.status != null">
+          and STATUS=#{form.status}
+        </if>
+        <if test="form.pClassCode != null">
+          and P_CLASS_CODE=#{form.pClassCode}
+        </if>
+        <if test="form.pClassName != null">
+          and P_CLASS_NAME LIKE concat('%',#{form.pClassName},'%')
+        </if>
+        <if test="form.id != null">
+          and P_TYPE_ID=#{form.id}
+        </if>
+      </if>
+    </where>
+  </sql>
+
+  <sql id="queryWhere">
+    <where>
+      <if test="status != null">
+        and STATUS=#{status}
+      </if>
+    </where>
+  </sql>
+
+  <select id="queryList" resultMap="BaseResultMap" parameterType="com.mljr.heil.form.ProductTypeForm">
+    select
+    <include refid="Base_Column_List" />
+    from ca_product_type
+    <include refid="queryWhere"/>
+  </select>
+
+  <select id="pageQuery" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    select
+    <include refid="Base_Column_List" />
+    from ca_product_type
+    <include refid="queryCondition"/>
+    <if test="paging == true">
+      limit #{limit} offset #{start}
+    </if>
+
+  </select>
+
+  <select id="queryCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select COUNT(1) from ca_product_type <include refid="queryCondition"/>
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from ca_product_type
+    where P_TYPE_ID = #{pTypeId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from ca_product_type
+    where P_TYPE_ID = #{pTypeId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mljr.heil.entity.ProductType" useGeneratedKeys="true" keyProperty="pTypeId">
+    insert into ca_product_type (P_TYPE_ID, P_CLASS_CODE, P_CLASS_NAME, 
+      P_DESC, STATUS, CREATE_USER, 
+      CREATE_TIME)
+    values (#{pTypeId,jdbcType=INTEGER}, #{pClassCode,jdbcType=VARCHAR}, #{pClassName,jdbcType=VARCHAR}, 
+      #{pDesc,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{createUser,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.ProductType" >
+    insert into ca_product_type
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pTypeId != null" >
+        P_TYPE_ID,
+      </if>
+      <if test="pClassCode != null" >
+        P_CLASS_CODE,
+      </if>
+      <if test="pClassName != null" >
+        P_CLASS_NAME,
+      </if>
+      <if test="pDesc != null" >
+        P_DESC,
+      </if>
+      <if test="status != null" >
+        STATUS,
+      </if>
+      <if test="createUser != null" >
+        CREATE_USER,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pTypeId != null" >
+        #{pTypeId,jdbcType=INTEGER},
+      </if>
+      <if test="pClassCode != null" >
+        #{pClassCode,jdbcType=VARCHAR},
+      </if>
+      <if test="pClassName != null" >
+        #{pClassName,jdbcType=VARCHAR},
+      </if>
+      <if test="pDesc != null" >
+        #{pDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="createUser != null" >
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.ProductType" >
+    update ca_product_type
+    <set >
+      <if test="pClassCode != null" >
+        P_CLASS_CODE = #{pClassCode,jdbcType=VARCHAR},
+      </if>
+      <if test="pClassName != null" >
+        P_CLASS_NAME = #{pClassName,jdbcType=VARCHAR},
+      </if>
+      <if test="pDesc != null" >
+        P_DESC = #{pDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        STATUS = #{status,jdbcType=CHAR},
+      </if>
+      <if test="createUser != null" >
+        CREATE_USER = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where P_TYPE_ID = #{pTypeId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.ProductType" >
+    update ca_product_type
+    set P_CLASS_CODE = #{pClassCode,jdbcType=VARCHAR},
+      P_CLASS_NAME = #{pClassName,jdbcType=VARCHAR},
+      P_DESC = #{pDesc,jdbcType=VARCHAR},
+      STATUS = #{status,jdbcType=CHAR},
+      CREATE_USER = #{createUser,jdbcType=VARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
+    where P_TYPE_ID = #{pTypeId,jdbcType=INTEGER}
+  </update>
+</mapper>

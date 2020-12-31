@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.PdTagMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.PdTag" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="buz_type" property="buzType" jdbcType="TINYINT" />
+    <result column="source_id" property="sourceId" jdbcType="INTEGER" />
+    <result column="tags" property="tags" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, buz_type, source_id, tags
+  </sql>
+
+  <sql id="queryCondition">
+    <where>
+      <if test="form != null " >
+        <if test="form.id != null" >
+          AND id = #{form.id,jdbcType=INTEGER}
+        </if>
+        <if test="form.buzType != null" >
+          AND buz_type = #{form.buzType,jdbcType=TINYINT}
+        </if>
+        <if test="form.sourceId != null" >
+          AND source_id = #{form.sourceId,jdbcType=INTEGER}
+        </if>
+        <if test="form.tagName != null" >
+          AND FIND_IN_SET(#{form.tagName,jdbcType=VARCHAR},tags)
+        </if>
+      </if>
+    </where>
+  </sql>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from pd_tags
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <select id="pageQuery" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    select
+    <include refid="Base_Column_List" />
+    from pd_tags
+    <include refid="queryCondition"/>
+    limit #{limit} offset #{start}
+  </select>
+
+  <select id="queryCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select COUNT(*) from pd_tags <include refid="queryCondition"/>
+  </select>
+
+  <select id="queryList" resultMap="BaseResultMap" parameterType="com.mljr.heil.form.PdTagForm">
+    select
+    <include refid="Base_Column_List" />
+    from pd_tags WHERE buz_type = #{buzType,jdbcType=TINYINT}
+    <if test="sourceId != null" >
+      AND source_id = #{sourceId,jdbcType=INTEGER}
+    </if>
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from pd_tags
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mljr.heil.entity.PdTag" >
+    insert into pd_tags (id, buz_type, source_id, 
+      tags)
+    values (#{id,jdbcType=INTEGER}, #{buzType,jdbcType=TINYINT}, #{sourceId,jdbcType=INTEGER}, 
+      #{tags,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.PdTag" >
+    insert into pd_tags
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="buzType != null" >
+        buz_type,
+      </if>
+      <if test="sourceId != null" >
+        source_id,
+      </if>
+      <if test="tags != null" >
+        tags,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="buzType != null" >
+        #{buzType,jdbcType=TINYINT},
+      </if>
+      <if test="sourceId != null" >
+        #{sourceId,jdbcType=INTEGER},
+      </if>
+      <if test="tags != null" >
+        #{tags,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.PdTag" >
+    update pd_tags
+    <set >
+      <if test="buzType != null" >
+        buz_type = #{buzType,jdbcType=TINYINT},
+      </if>
+      <if test="sourceId != null" >
+        source_id = #{sourceId,jdbcType=INTEGER},
+      </if>
+      <if test="tags != null" >
+        tags = #{tags,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.PdTag" >
+    update pd_tags
+    set buz_type = #{buzType,jdbcType=TINYINT},
+      source_id = #{sourceId,jdbcType=INTEGER},
+      tags = #{tags,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <update id="updateRecord" parameterType="com.mljr.heil.entity.PdTag" >
+    update pd_tags
+    set tags = #{tags,jdbcType=VARCHAR}
+    where source_id = #{sourceId,jdbcType=INTEGER} AND buz_type = #{buzType,jdbcType=TINYINT}
+  </update>
+
+  <delete id="deleteRecord" parameterType="com.mljr.heil.entity.PdTag" >
+    delete from pd_tags
+    where source_id = #{sourceId,jdbcType=INTEGER} AND buz_type = #{buzType,jdbcType=TINYINT}
+  </delete>
+
+  <delete id="batchDelete" parameterType="java.util.List">
+    DELETE from pd_tags  WHERE id IN
+    <foreach collection="list" item="item" open="(" close=")" separator=",">
+      #{item.id}
+    </foreach>
+  </delete>
+</mapper>

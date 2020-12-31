@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.SerFinRateMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.SerFinRate" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="RULE_SEQ" property="ruleSeq" jdbcType="INTEGER" />
+    <result column="basic_rate" property="basicRate" jdbcType="DECIMAL" />
+    <result column="SER_FIN_RATE" property="serFinRate" jdbcType="DOUBLE" />
+    <result column="SER_FIN_REBATE_RATE" property="serFinRebateRate" jdbcType="DECIMAL" />
+    <result column="high_rate" property="highRate" jdbcType="DECIMAL" />
+    <result column="extend_props" property="extendProps" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ID, RULE_SEQ,basic_rate, SER_FIN_RATE, SER_FIN_REBATE_RATE,high_rate,extend_props
+  </sql>
+
+
+  <sql id="queryWhere">
+    <where>
+      <if test="form != null " >
+        <if test="form.ruleSeq != null and form.ruleSeq !=''">
+          and RULE_SEQ = #{form.ruleSeq}
+        </if>
+      </if>
+    </where>
+  </sql>
+
+  <sql id="queryListWhere">
+    <where>
+        <if test="ruleSeq != null and ruleSeq !=''">
+          and RULE_SEQ = #{ruleSeq}
+        </if>
+        <if test="ruleSeqList != null ">
+          AND RULE_SEQ IN
+          <foreach collection="ruleSeqList" item="ruleId" open="(" separator="," close=")">
+            #{ruleId}
+          </foreach>
+        </if>
+    </where>
+  </sql>
+
+  <sql id="delWhere">
+    <where>
+        <if test="ruleSeq != null and ruleSeq !=''">
+          and RULE_SEQ = #{ruleSeq}
+        </if>
+    </where>
+  </sql>
+  <select id="pageQuery" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    select
+    <include refid="Base_Column_List" />
+    from ca_ser_fin_rate
+    <include refid="queryWhere"/>
+    limit #{limit} offset #{start}
+  </select>
+
+  <select id="queryCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select
+    COUNT(1)
+    from ca_ser_fin_rate
+    <include refid="queryWhere"/>
+  </select>
+
+  <select id="queryList" resultMap="BaseResultMap" parameterType="com.mljr.heil.form.SerFinRateForm">
+    select
+    <include refid="Base_Column_List" />
+    from ca_ser_fin_rate
+    <include refid="queryListWhere"/>
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from ca_ser_fin_rate
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+  delete from ca_ser_fin_rate
+  where ID = #{id,jdbcType=INTEGER}
+</delete>
+
+  <delete id="delByForm" parameterType="com.mljr.heil.form.SerFinRateForm" >
+    delete from ca_ser_fin_rate
+    <include refid="delWhere"/>
+  </delete>
+
+  <insert id="insertBatch" parameterType="java.util.List" >
+    insert into ca_ser_fin_rate ( RULE_SEQ, basic_rate,SER_FIN_RATE, SER_FIN_REBATE_RATE,high_rate,extend_props) values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.ruleSeq,jdbcType=INTEGER},#{item.basicRate}, #{item.serFinRate},#{item.serFinRebateRate},#{item.highRate},#{item.extendProps})
+    </foreach>
+  </insert>
+  <insert id="insert" parameterType="com.mljr.heil.entity.SerFinRate" >
+    insert into ca_ser_fin_rate (ID, RULE_SEQ,basic_rate, SER_FIN_RATE,
+      SER_FIN_REBATE_RATE,high_rate,extend_props)
+    values (#{id,jdbcType=INTEGER}, #{ruleSeq,jdbcType=INTEGER},#{basicRate}, #{serFinRate,jdbcType=DOUBLE},
+      #{serFinRebateRate,jdbcType=DECIMAL},#{highRate},#{extendProps})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.SerFinRate" >
+    insert into ca_ser_fin_rate
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="basicRate != null" >
+        basic_rate,
+      </if>
+      <if test="ruleSeq != null" >
+        RULE_SEQ,
+      </if>
+      <if test="serFinRate != null" >
+        SER_FIN_RATE,
+      </if>
+      <if test="serFinRebateRate != null" >
+        SER_FIN_REBATE_RATE,
+      </if>
+      <if test="highRate != null" >
+        high_rate,
+      </if>
+      <if test="extendProps != null" >
+        extend_props,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="basicRate != null" >
+        #{basicRate},
+      </if>
+      <if test="ruleSeq != null" >
+        #{ruleSeq,jdbcType=INTEGER},
+      </if>
+      <if test="serFinRate != null" >
+        #{serFinRate,jdbcType=DOUBLE},
+      </if>
+      <if test="serFinRebateRate != null" >
+        #{serFinRebateRate,jdbcType=DECIMAL},
+      </if>
+      <if test="highRate != null" >
+        #{highRate},
+      </if>
+      <if test="extendProps != null" >
+        #{extendProps},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.SerFinRate" >
+    update ca_ser_fin_rate
+    <set >
+      <if test="ruleSeq != null" >
+        RULE_SEQ = #{ruleSeq,jdbcType=INTEGER},
+      </if>
+      <if test="basicRate != null" >
+        basic_rate = #{basicRate},
+      </if>
+      <if test="serFinRate != null" >
+        SER_FIN_RATE = #{serFinRate,jdbcType=DOUBLE},
+      </if>
+      <if test="serFinRebateRate != null" >
+        SER_FIN_REBATE_RATE = #{serFinRebateRate,jdbcType=DECIMAL},
+      </if>
+      <if test="highRate != null" >
+        high_rate = #{highRate},
+      </if>
+      <if test="extendProps != null" >
+        extend_props = #{extendProps},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.SerFinRate" >
+    update ca_ser_fin_rate
+    set RULE_SEQ = #{ruleSeq,jdbcType=INTEGER},
+     basic_rate = #{basicRate},
+      SER_FIN_RATE = #{serFinRate,jdbcType=DOUBLE},
+      SER_FIN_REBATE_RATE = #{serFinRebateRate,jdbcType=DECIMAL},
+      high_rate = #{highRate},
+      extend_props = #{extendProps}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

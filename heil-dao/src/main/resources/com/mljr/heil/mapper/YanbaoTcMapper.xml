@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.YanbaoTcMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.YanbaoTc" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="RULE_SEQ" property="ruleSeq" jdbcType="INTEGER" />
+    <result column="TC_ID" property="tcId" jdbcType="INTEGER" />
+    <result column="TC_ZH" property="tcZh" jdbcType="VARCHAR" />
+    <result column="TC_FEE" property="tcFee" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ID, RULE_SEQ, TC_ID, TC_ZH, TC_FEE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from ca_yan_bao_tc
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+
+  <sql id="queryWhere">
+    <where>
+      <if test="ruleSeq != null">
+        and RULE_SEQ=#{ruleSeq}
+      </if>
+      <if test="ruleSeqList != null ">
+        and RULE_SEQ in
+        <foreach collection="ruleSeqList" item="ruleId" open="(" separator="," close=")">
+           #{ruleId}
+        </foreach>
+      </if>
+    </where>
+  </sql>
+
+  <!-- 查询列表 -->
+  <select id="queryList" resultMap="BaseResultMap" parameterType="com.mljr.heil.form.YanbaoTcForm" >
+    select
+    <include refid="Base_Column_List" />
+    from ca_yan_bao_tc
+    <include refid="queryWhere"/>
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from ca_yan_bao_tc
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+
+  <delete id="deleteByRuleSeq" parameterType="java.lang.Integer" >
+    delete from ca_yan_bao_tc
+    where RULE_SEQ = #{ruleSeq}
+  </delete>
+
+  <insert id="insert" parameterType="com.mljr.heil.entity.YanbaoTc" useGeneratedKeys="true" keyProperty="id">
+    insert into ca_yan_bao_tc (ID, RULE_SEQ, TC_ID, 
+      TC_ZH, TC_FEE)
+    values (#{id,jdbcType=INTEGER}, #{ruleSeq,jdbcType=INTEGER}, #{tcId,jdbcType=INTEGER}, 
+      #{tcZh,jdbcType=VARCHAR}, #{tcFee,jdbcType=DECIMAL})
+  </insert>
+
+  <insert id="insertBatch" parameterType="java.util.List" >
+    insert into ca_yan_bao_tc ( RULE_SEQ, TC_ID,TC_ZH, TC_FEE) values
+    <foreach collection="list" item="item" index="index" separator=",">
+     (#{item.ruleSeq,jdbcType=INTEGER}, #{item.tcId,jdbcType=INTEGER},#{item.tcZh,jdbcType=VARCHAR}, #{item.tcFee,jdbcType=DECIMAL})
+    </foreach>
+  </insert>
+
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.YanbaoTc" useGeneratedKeys="true" keyProperty="id">
+    insert into ca_yan_bao_tc
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="ruleSeq != null" >
+        RULE_SEQ,
+      </if>
+      <if test="tcId != null" >
+        TC_ID,
+      </if>
+      <if test="tcZh != null" >
+        TC_ZH,
+      </if>
+      <if test="tcFee != null" >
+        TC_FEE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="ruleSeq != null" >
+        #{ruleSeq,jdbcType=INTEGER},
+      </if>
+      <if test="tcId != null" >
+        #{tcId,jdbcType=INTEGER},
+      </if>
+      <if test="tcZh != null" >
+        #{tcZh,jdbcType=VARCHAR},
+      </if>
+      <if test="tcFee != null" >
+        #{tcFee,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.YanbaoTc" >
+    update ca_yan_bao_tc
+    <set >
+      <if test="ruleSeq != null" >
+        RULE_SEQ = #{ruleSeq,jdbcType=INTEGER},
+      </if>
+      <if test="tcId != null" >
+        TC_ID = #{tcId,jdbcType=INTEGER},
+      </if>
+      <if test="tcZh != null" >
+        TC_ZH = #{tcZh,jdbcType=VARCHAR},
+      </if>
+      <if test="tcFee != null" >
+        TC_FEE = #{tcFee,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.YanbaoTc" >
+    update ca_yan_bao_tc
+    set RULE_SEQ = #{ruleSeq,jdbcType=INTEGER},
+      TC_ID = #{tcId,jdbcType=INTEGER},
+      TC_ZH = #{tcZh,jdbcType=VARCHAR},
+      TC_FEE = #{tcFee,jdbcType=DECIMAL}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

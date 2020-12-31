@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.AutoApprRuleMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.AutoApprRule" >
+    <id column="rule_id" property="ruleId" jdbcType="VARCHAR" />
+    <id column="sys_idn" property="sysIdn" jdbcType="CHAR" />
+    <result column="type" property="type" jdbcType="CHAR" />
+    <result column="type_name" property="typeName" jdbcType="VARCHAR" />
+    <result column="sub_type" property="subType" jdbcType="VARCHAR" />
+    <result column="sub_type_name" property="subTypeName" jdbcType="VARCHAR" />
+    <result column="rule_name" property="ruleName" jdbcType="VARCHAR" />
+    <result column="belong_name" property="belongName" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="rule_seq" property="ruleSeq" jdbcType="TINYINT" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="msg_template" property="msgTemplate" jdbcType="VARCHAR" />
+    <result column="classify" property="classify" jdbcType="TINYINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    rule_id, sys_idn, type, type_name, sub_type, sub_type_name, rule_name, belong_name, 
+    status, rule_seq, create_date, msg_template, classify
+  </sql>
+
+
+  <sql id="queryWhere">
+    <where>
+      <if test="form != null " >
+        <if test="form.ruleId != null and form.ruleId !=''">
+          and rule_id = #{form.ruleId}
+        </if>
+        <if test="form.subType != null and form.subType !=''">
+          and sub_type = #{form.subType}
+        </if>
+        <if test="form.type != null and form.type !=''">
+          and type = #{form.type}
+        </if>
+        <if test="form.status != null and form.status !=''">
+          and status = #{form.status}
+        </if>
+        <if test="form.classify != null">
+          and classify = #{form.classify,jdbcType=TINYINT}
+        </if>
+      </if>
+    </where>
+  </sql>
+
+  <select id="pageQuery" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    select
+    <include refid="Base_Column_List" />
+    from ca_auto_appr_rule
+    <include refid="queryWhere"/>
+    <if test="form.classify == 2">
+      ORDER BY rule_seq ASC
+    </if>
+    <if test="form.classify != 2">
+      ORDER BY create_date DESC
+    </if>
+    limit #{limit} offset #{start}
+  </select>
+
+  <select id="queryCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select
+    COUNT(1)
+    from ca_auto_appr_rule
+    <include refid="queryWhere"/>
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.mljr.heil.entity.AutoApprRuleKey" >
+    select 
+    <include refid="Base_Column_List" />
+    from ca_auto_appr_rule
+    where rule_id = #{ruleId,jdbcType=VARCHAR}
+      and sys_idn = #{sysIdn,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.mljr.heil.entity.AutoApprRuleKey" >
+    delete from ca_auto_appr_rule
+    where rule_id = #{ruleId,jdbcType=VARCHAR}
+      and sys_idn = #{sysIdn,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.mljr.heil.entity.AutoApprRule" >
+    insert into ca_auto_appr_rule (rule_id, sys_idn, type, 
+      type_name, sub_type, sub_type_name, 
+      rule_name, belong_name, status, 
+      rule_seq, create_date, msg_template, classify
+      )
+    values (#{ruleId,jdbcType=VARCHAR}, #{sysIdn,jdbcType=CHAR}, #{type,jdbcType=CHAR}, 
+      #{typeName,jdbcType=VARCHAR}, #{subType,jdbcType=VARCHAR}, #{subTypeName,jdbcType=VARCHAR}, 
+      #{ruleName,jdbcType=VARCHAR}, #{belongName,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, 
+      #{ruleSeq,jdbcType=TINYINT}, #{createDate,jdbcType=TIMESTAMP}, #{msgTemplate,jdbcType=VARCHAR},
+      #{classify,jdbcType=TINYINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.AutoApprRule" >
+    insert into ca_auto_appr_rule
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="ruleId != null" >
+        rule_id,
+      </if>
+      <if test="sysIdn != null" >
+        sys_idn,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="typeName != null" >
+        type_name,
+      </if>
+      <if test="subType != null" >
+        sub_type,
+      </if>
+      <if test="subTypeName != null" >
+        sub_type_name,
+      </if>
+      <if test="ruleName != null" >
+        rule_name,
+      </if>
+      <if test="belongName != null" >
+        belong_name,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="ruleSeq != null" >
+        rule_seq,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="msgTemplate != null" >
+        msg_template,
+      </if>
+      <if test="classify != null" >
+        classify,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="ruleId != null" >
+        #{ruleId,jdbcType=VARCHAR},
+      </if>
+      <if test="sysIdn != null" >
+        #{sysIdn,jdbcType=CHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=CHAR},
+      </if>
+      <if test="typeName != null" >
+        #{typeName,jdbcType=VARCHAR},
+      </if>
+      <if test="subType != null" >
+        #{subType,jdbcType=VARCHAR},
+      </if>
+      <if test="subTypeName != null" >
+        #{subTypeName,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleName != null" >
+        #{ruleName,jdbcType=VARCHAR},
+      </if>
+      <if test="belongName != null" >
+        #{belongName,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="ruleSeq != null" >
+        #{ruleSeq,jdbcType=TINYINT},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="msgTemplate != null" >
+        #{msgTemplate,jdbcType=VARCHAR},
+      </if>
+      <if test="classify != null" >
+        #{classify,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.AutoApprRule" >
+    update ca_auto_appr_rule
+    <set >
+      <if test="type != null" >
+        type = #{type,jdbcType=CHAR},
+      </if>
+      <if test="typeName != null" >
+        type_name = #{typeName,jdbcType=VARCHAR},
+      </if>
+      <if test="subType != null" >
+        sub_type = #{subType,jdbcType=VARCHAR},
+      </if>
+      <if test="subTypeName != null" >
+        sub_type_name = #{subTypeName,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleName != null" >
+        rule_name = #{ruleName,jdbcType=VARCHAR},
+      </if>
+      <if test="belongName != null" >
+        belong_name = #{belongName,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null or status == 0">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="ruleSeq != null" >
+        rule_seq = #{ruleSeq,jdbcType=TINYINT},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="msgTemplate != null" >
+        msg_template = #{msgTemplate,jdbcType=VARCHAR},
+      </if>
+      <if test="classify != null" >
+        classify = #{classify,jdbcType=TINYINT},
+      </if>
+    </set>
+    where rule_id = #{ruleId,jdbcType=VARCHAR}
+      and sys_idn = #{sysIdn,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.AutoApprRule" >
+    update ca_auto_appr_rule
+    set type = #{type,jdbcType=CHAR},
+      type_name = #{typeName,jdbcType=VARCHAR},
+      sub_type = #{subType,jdbcType=VARCHAR},
+      sub_type_name = #{subTypeName,jdbcType=VARCHAR},
+      rule_name = #{ruleName,jdbcType=VARCHAR},
+      belong_name = #{belongName,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      rule_seq = #{ruleSeq,jdbcType=TINYINT},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      msg_template = #{msgTemplate,jdbcType=VARCHAR},
+      classify = #{classify,jdbcType=TINYINT}
+    where rule_id = #{ruleId,jdbcType=VARCHAR}
+      and sys_idn = #{sysIdn,jdbcType=CHAR}
+  </update>
+</mapper>

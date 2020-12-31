@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.SerFinRuleMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.SerFinRule" >
+    <id column="RULE_SEQ" property="ruleSeq" jdbcType="INTEGER" />
+    <result column="RULE_SEQ_NAME" property="ruleSeqName" jdbcType="VARCHAR" />
+    <result column="IS_OLD" property="isOld" jdbcType="CHAR" />
+    <result column="IS_LCV" property="isLcv" jdbcType="VARCHAR" />
+    <result column="LOAN_AMOUNT_MIIN" property="loanAmountMiin" jdbcType="DECIMAL" />
+    <result column="LOAN_AMOUNT_MAX" property="loanAmountMax" jdbcType="DECIMAL" />
+    <result column="INIT_SCALE_MIN" property="initScaleMin" jdbcType="DECIMAL" />
+    <result column="INIT_SCALE_MAX" property="initScaleMax" jdbcType="DECIMAL" />
+    <result column="R_LOAN_PERIODS" property="rLoanPeriods" jdbcType="VARCHAR" />
+    <result column="IS_ALL_DEALER" property="isAllDealer" jdbcType="CHAR" />
+    <result column="SER_FIN_FEE" property="serFinFee" jdbcType="DECIMAL" />
+    <result column="BEGIN_DATE" property="beginDate" jdbcType="DATE" />
+    <result column="END_DATE" property="endDate" jdbcType="DATE" />
+    <result column="PRO_SEQ" property="proSeq" jdbcType="TINYINT" />
+    <result column="VAR" property="var" jdbcType="TINYINT" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="USER_ID" property="userId" jdbcType="INTEGER" />
+    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+    <result column="REMARKS" property="remarks" jdbcType="VARCHAR" />
+    <result column="RULE1" property="rule1" jdbcType="VARCHAR" />
+    <result column="RULE2" property="rule2" jdbcType="VARCHAR" />
+    <result column="RULE3" property="rule3" jdbcType="VARCHAR" />
+    <result column="RULE4" property="rule4" jdbcType="VARCHAR" />
+    <result column="work_flow" property="workFlow" jdbcType="VARCHAR" />
+    <result column="taken_mode" property="takenMode" jdbcType="TINYINT" />
+    <result column="STATUS" property="status" jdbcType="TINYINT" />
+
+  </resultMap>
+  <sql id="Base_Column_List" >
+    RULE_SEQ, RULE_SEQ_NAME, IS_OLD, IS_LCV, LOAN_AMOUNT_MIIN, LOAN_AMOUNT_MAX, INIT_SCALE_MIN, 
+    INIT_SCALE_MAX, R_LOAN_PERIODS, IS_ALL_DEALER, SER_FIN_FEE, BEGIN_DATE, END_DATE, 
+    PRO_SEQ, VAR, CREATE_TIME, UPDATE_TIME, USER_ID, USER_NAME, REMARKS, RULE1, RULE2, 
+    RULE3, RULE4, work_flow,taken_mode,STATUS
+  </sql>
+
+
+  <sql id="queryWhere">
+    <where>
+      <if test="form != null " >
+        <if test="form.isOld != null and form.isOld !=''">
+          AND (
+          CASE
+          WHEN (isnull(r.IS_OLD)OR (r.IS_OLD = ''))
+          THEN
+          FIND_IN_SET( #{form.isOld}, '0,1')
+          ELSE
+          FIND_IN_SET( #{form.isOld}, r.IS_OLD)
+          END
+          )
+        </if>
+        <if test="form.isLcv != null and form.isLcv !=''">
+          AND (
+          CASE
+          WHEN (isnull(r.IS_LCV) OR (r.IS_LCV = ''))
+          THEN
+          FIND_IN_SET( #{form.isLcv}, '0,1,2,3')
+          ELSE
+          FIND_IN_SET( #{form.isLcv}, r.IS_LCV)
+          END
+          )
+        </if>
+        <if test="form.loanPeriod != null and form.loanPeriod !=''">
+          AND (
+          CASE
+          WHEN (isnull(r.R_LOAN_PERIODS)OR (r.R_LOAN_PERIODS = ''))
+          THEN
+          FIND_IN_SET(#{form.loanPeriod}, '6,12,18,24,30,36,42,48')
+          ELSE
+          FIND_IN_SET(#{form.loanPeriod}, r.R_LOAN_PERIODS)
+          END
+          )
+        </if>
+        <if test="form.tag != null and form.tag !=''">
+          AND EXISTS ( SELECT 1 FROM pd_tags b WHERE b.source_id = r.RULE_SEQ AND b.buz_type = 1 AND FIND_IN_SET(#{form.tag},b.tags))
+        </if>
+        <if test="form.tagList != null and form.tagList.size > 0">
+          AND EXISTS ( SELECT 1 FROM pd_tags b WHERE b.source_id = r.RULE_SEQ AND b.buz_type = 1
+          <foreach collection="form.tagList" item="item" index="index">
+            AND FIND_IN_SET(#{item},b.tags)
+            <if test="index == form.tagList.size()-1">
+              )
+            </if>
+
+          </foreach>
+        </if>
+        <if test="(form.serFinRate != null) || (form.serFinRebateRate != null)">
+         AND EXISTS ( SELECT 1 FROM ca_ser_fin_rate f WHERE f.RULE_SEQ = r.RULE_SEQ
+              <if test="form.serFinRate != null">
+                and f.SER_FIN_RATE = #{form.serFinRate}
+              </if>
+              <if test="form.serFinRebateRate != null">
+                and f.SER_FIN_REBATE_RATE = #{form.serFinRebateRate}
+              </if>
+          )
+        </if>
+        <if test="form.id != null and form.id !=''">
+          and r.RULE_SEQ = #{form.id}
+        </if>
+        <if test="form.name != null and form.name !=''">
+          and r.RULE_SEQ_NAME like CONCAT('%',#{form.name},'%')
+        </if>
+        <if test="form.ruleIds != null">
+          and RULE_SEQ in
+          <foreach collection="form.ruleIds" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+          </foreach>
+        </if>
+
+        <if test="form.dealerCode != null and form.dealerCode != '' and form.bindFlag == true">
+          AND ( EXISTS (
+          SELECT
+          1
+          FROM
+          ca_ser_fin_dealer b
+          WHERE
+          b.rule_seq = r.RULE_SEQ
+          AND  b.dealer_code = #{form.dealerCode}
+          )
+          or r.IS_ALL_DEALER = 1)
+        </if>
+        <if test="form.dealerCode != null and form.dealerCode != '' and form.bindFlag != true">
+          AND NOT EXISTS (
+          SELECT
+          1
+          FROM
+          ca_ser_fin_dealer b
+          WHERE
+          b.rule_seq = r.RULE_SEQ
+          AND  b.dealer_code = #{form.dealerCode}
+          )
+          AND r.IS_ALL_DEALER = 0
+        </if>
+        <if test="form.status != null">
+          AND r.STATUS = #{form.status}
+        </if>
+      </if>
+    </where>
+  </sql>
+
+  <select id="pageQuery" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    select
+    <include refid="Base_Column_List" />
+    from ca_ser_fin_rule r
+    <include refid="queryWhere"/>
+    ORDER BY UPDATE_TIME DESC
+    <if test="paging == true">
+      limit #{limit} offset #{start}
+    </if>
+
+  </select>
+
+  <!-- 非分页查询 -->
+  <sql id="queryListCondition">
+    <where>
+      <if test="ruleIds != null">
+        and r.RULE_SEQ in
+        <foreach collection="ruleIds" item="item" index="index" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+      </if>
+    </where>
+  </sql>
+
+  <!-- 查询列表 -->
+  <select id="queryList" resultMap="BaseResultMap" parameterType="com.mljr.heil.form.SerFinRuleForm">
+    select
+    <include refid="Base_Column_List" />
+    from ca_ser_fin_rule r
+    <include refid="queryListCondition"/>
+  </select>
+
+  <select id="queryCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select
+    COUNT(1)
+    from ca_ser_fin_rule r
+    <include refid="queryWhere"/>
+  </select>
+
+  <select id="queryRulesUnBindProduct" resultType="com.mljr.heil.entity.SerFinRule">
+   SELECT
+    t.RULE_SEQ AS ruleSeq,
+    t.RULE_SEQ_NAME AS ruleSeqName
+    FROM ca_ser_fin_rule t
+   WHERE
+    t.status =1
+    AND NOT EXISTS   (
+    SELECT * from ca_product  a
+    INNER JOIN pd_rule_product c ON a.P_ID = c.product_id AND c.classify = 1
+    WHERE c.rule_id = t.RULE_SEQ AND a.status = 1
+    )
+  </select>
+
+  <select id="queryRulesByProductId" resultMap="BaseResultMap">
+    SELECT
+    a.RULE_SEQ, a.RULE_SEQ_NAME, a.IS_OLD, a.IS_LCV, a.LOAN_AMOUNT_MIIN, a.LOAN_AMOUNT_MAX, a.INIT_SCALE_MIN,
+    a.INIT_SCALE_MAX, a.R_LOAN_PERIODS, a.IS_ALL_DEALER, a.SER_FIN_FEE, a.BEGIN_DATE, a.END_DATE,
+    a.PRO_SEQ, a.VAR, a.CREATE_TIME, a.UPDATE_TIME, a.USER_ID, a.USER_NAME, a.REMARKS, a.RULE1, a.RULE2,
+    a.RULE3, a.RULE4, a.work_flow,a.taken_mode
+    FROM
+	ca_ser_fin_rule a
+    INNER JOIN pd_rule_product d ON a.RULE_SEQ = d.rule_id
+    WHERE
+    d.product_id = #{pId}
+    AND a.status =1
+    AND d.classify = 1
+  </select>
+
+  <resultMap id="baseMap"   type="java.util.HashMap">
+    <result property="key" column="dealerCode" javaType="java.lang.String"/>
+    <result property="value" column="ruleSeqs" javaType="java.lang.String"/>
+  </resultMap>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from ca_ser_fin_rule
+    where RULE_SEQ = #{ruleSeq,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from ca_ser_fin_rule
+    where RULE_SEQ = #{ruleSeq,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mljr.heil.entity.SerFinRule" keyProperty="ruleSeq" useGeneratedKeys="true">
+    insert into ca_ser_fin_rule (RULE_SEQ, RULE_SEQ_NAME, IS_OLD, 
+      IS_LCV, LOAN_AMOUNT_MIIN, LOAN_AMOUNT_MAX, 
+      INIT_SCALE_MIN, INIT_SCALE_MAX, R_LOAN_PERIODS, 
+      IS_ALL_DEALER, SER_FIN_FEE, BEGIN_DATE, 
+      END_DATE, PRO_SEQ, VAR, 
+      CREATE_TIME, UPDATE_TIME, USER_ID, 
+      USER_NAME, REMARKS, RULE1, 
+      RULE2, RULE3, RULE4, 
+      work_flow,taken_mode
+      )
+    values (#{ruleSeq,jdbcType=INTEGER}, #{ruleSeqName,jdbcType=VARCHAR}, #{isOld,jdbcType=CHAR}, 
+      #{isLcv,jdbcType=VARCHAR}, #{loanAmountMiin,jdbcType=DECIMAL}, #{loanAmountMax,jdbcType=DECIMAL}, 
+      #{initScaleMin,jdbcType=DECIMAL}, #{initScaleMax,jdbcType=DECIMAL}, #{rLoanPeriods,jdbcType=VARCHAR}, 
+      #{isAllDealer,jdbcType=CHAR}, #{serFinFee,jdbcType=DECIMAL}, #{beginDate,jdbcType=DATE}, 
+      #{endDate,jdbcType=DATE}, #{proSeq,jdbcType=TINYINT}, #{var,jdbcType=TINYINT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{userId,jdbcType=INTEGER}, 
+      #{userName,jdbcType=VARCHAR}, #{remarks,jdbcType=VARCHAR}, #{rule1,jdbcType=VARCHAR}, 
+      #{rule2,jdbcType=VARCHAR}, #{rule3,jdbcType=VARCHAR}, #{rule4,jdbcType=VARCHAR}, 
+      #{workFlow,jdbcType=VARCHAR},#{takenMode}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.SerFinRule" keyProperty="ruleSeq" useGeneratedKeys="true">
+    insert into ca_ser_fin_rule
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="ruleSeq != null" >
+        RULE_SEQ,
+      </if>
+      <if test="ruleSeqName != null" >
+        RULE_SEQ_NAME,
+      </if>
+      <if test="isOld != null" >
+        IS_OLD,
+      </if>
+      <if test="isLcv != null" >
+        IS_LCV,
+      </if>
+      <if test="loanAmountMiin != null" >
+        LOAN_AMOUNT_MIIN,
+      </if>
+      <if test="loanAmountMax != null" >
+        LOAN_AMOUNT_MAX,
+      </if>
+      <if test="initScaleMin != null" >
+        INIT_SCALE_MIN,
+      </if>
+      <if test="initScaleMax != null" >
+        INIT_SCALE_MAX,
+      </if>
+      <if test="rLoanPeriods != null" >
+        R_LOAN_PERIODS,
+      </if>
+      <if test="isAllDealer != null" >
+        IS_ALL_DEALER,
+      </if>
+      <if test="serFinFee != null" >
+        SER_FIN_FEE,
+      </if>
+      <if test="beginDate != null" >
+        BEGIN_DATE,
+      </if>
+      <if test="endDate != null" >
+        END_DATE,
+      </if>
+      <if test="proSeq != null" >
+        PRO_SEQ,
+      </if>
+      <if test="var != null" >
+        VAR,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+      <if test="updateTime != null" >
+        UPDATE_TIME,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="userName != null" >
+        USER_NAME,
+      </if>
+      <if test="remarks != null" >
+        REMARKS,
+      </if>
+      <if test="rule1 != null" >
+        RULE1,
+      </if>
+      <if test="rule2 != null" >
+        RULE2,
+      </if>
+      <if test="rule3 != null" >
+        RULE3,
+      </if>
+      <if test="rule4 != null" >
+        RULE4,
+      </if>
+
+      <if test="workFlow != null" >
+        work_flow,
+      </if>
+      <if test="takenMode != null" >
+        taken_mode,
+      </if>
+      <if test="status != null" >
+        STATUS,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="ruleSeq != null" >
+        #{ruleSeq,jdbcType=INTEGER},
+      </if>
+      <if test="ruleSeqName != null" >
+        #{ruleSeqName,jdbcType=VARCHAR},
+      </if>
+      <if test="isOld != null" >
+        #{isOld,jdbcType=CHAR},
+      </if>
+      <if test="isLcv != null" >
+        #{isLcv,jdbcType=VARCHAR},
+      </if>
+      <if test="loanAmountMiin != null" >
+        #{loanAmountMiin,jdbcType=DECIMAL},
+      </if>
+      <if test="loanAmountMax != null" >
+        #{loanAmountMax,jdbcType=DECIMAL},
+      </if>
+      <if test="initScaleMin != null" >
+        #{initScaleMin,jdbcType=DECIMAL},
+      </if>
+      <if test="initScaleMax != null" >
+        #{initScaleMax,jdbcType=DECIMAL},
+      </if>
+      <if test="rLoanPeriods != null" >
+        #{rLoanPeriods,jdbcType=VARCHAR},
+      </if>
+      <if test="isAllDealer != null" >
+        #{isAllDealer,jdbcType=CHAR},
+      </if>
+      <if test="serFinFee != null" >
+        #{serFinFee,jdbcType=DECIMAL},
+      </if>
+      <if test="beginDate != null" >
+        #{beginDate,jdbcType=DATE},
+      </if>
+      <if test="endDate != null" >
+        #{endDate,jdbcType=DATE},
+      </if>
+      <if test="proSeq != null" >
+        #{proSeq,jdbcType=TINYINT},
+      </if>
+      <if test="var != null" >
+        #{var,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null" >
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="rule1 != null" >
+        #{rule1,jdbcType=VARCHAR},
+      </if>
+      <if test="rule2 != null" >
+        #{rule2,jdbcType=VARCHAR},
+      </if>
+      <if test="rule3 != null" >
+        #{rule3,jdbcType=VARCHAR},
+      </if>
+      <if test="rule4 != null" >
+        #{rule4,jdbcType=VARCHAR},
+      </if>
+
+      <if test="workFlow != null" >
+        #{workFlow,jdbcType=VARCHAR},
+      </if>
+      <if test="takenMode != null" >
+        #{takenMode},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.SerFinRule" >
+    update ca_ser_fin_rule
+    <set >
+      <if test="ruleSeqName != null" >
+        RULE_SEQ_NAME = #{ruleSeqName,jdbcType=VARCHAR},
+      </if>
+      <if test="isOld != null" >
+        IS_OLD = #{isOld,jdbcType=CHAR},
+      </if>
+      <if test="isLcv != null" >
+        IS_LCV = #{isLcv,jdbcType=VARCHAR},
+      </if>
+      <if test="loanAmountMiin != null" >
+        LOAN_AMOUNT_MIIN = #{loanAmountMiin,jdbcType=DECIMAL},
+      </if>
+      <if test="loanAmountMax != null" >
+        LOAN_AMOUNT_MAX = #{loanAmountMax,jdbcType=DECIMAL},
+      </if>
+      <if test="initScaleMin != null" >
+        INIT_SCALE_MIN = #{initScaleMin,jdbcType=DECIMAL},
+      </if>
+      <if test="initScaleMax != null" >
+        INIT_SCALE_MAX = #{initScaleMax,jdbcType=DECIMAL},
+      </if>
+      <if test="rLoanPeriods != null" >
+        R_LOAN_PERIODS = #{rLoanPeriods,jdbcType=VARCHAR},
+      </if>
+      <if test="isAllDealer != null" >
+        IS_ALL_DEALER = #{isAllDealer,jdbcType=CHAR},
+      </if>
+      <if test="serFinFee != null" >
+        SER_FIN_FEE = #{serFinFee,jdbcType=DECIMAL},
+      </if>
+      <if test="beginDate != null" >
+        BEGIN_DATE = #{beginDate,jdbcType=DATE},
+      </if>
+      <if test="endDate != null" >
+        END_DATE = #{endDate,jdbcType=DATE},
+      </if>
+      <if test="proSeq != null" >
+        PRO_SEQ = #{proSeq,jdbcType=TINYINT},
+      </if>
+      <if test="var != null" >
+        VAR = #{var,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        UPDATE_TIME = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userName != null" >
+        USER_NAME = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null" >
+        REMARKS = #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="rule1 != null" >
+        RULE1 = #{rule1,jdbcType=VARCHAR},
+      </if>
+      <if test="rule2 != null" >
+        RULE2 = #{rule2,jdbcType=VARCHAR},
+      </if>
+      <if test="rule3 != null" >
+        RULE3 = #{rule3,jdbcType=VARCHAR},
+      </if>
+      <if test="rule4 != null" >
+        RULE4 = #{rule4,jdbcType=VARCHAR},
+      </if>
+
+      <if test="workFlow != null" >
+        work_flow = #{workFlow,jdbcType=VARCHAR},
+      </if>
+      <if test="takenMode != null" >
+        taken_mode = #{takenMode},
+      </if>
+      <if test="status != null" >
+        STATUS = #{status,jdbcType=TINYINT},
+      </if>
+    </set>
+    where RULE_SEQ = #{ruleSeq,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.SerFinRule" >
+    update ca_ser_fin_rule
+    set RULE_SEQ_NAME = #{ruleSeqName,jdbcType=VARCHAR},
+      IS_OLD = #{isOld,jdbcType=CHAR},
+      IS_LCV = #{isLcv,jdbcType=VARCHAR},
+      LOAN_AMOUNT_MIIN = #{loanAmountMiin,jdbcType=DECIMAL},
+      LOAN_AMOUNT_MAX = #{loanAmountMax,jdbcType=DECIMAL},
+      INIT_SCALE_MIN = #{initScaleMin,jdbcType=DECIMAL},
+      INIT_SCALE_MAX = #{initScaleMax,jdbcType=DECIMAL},
+      R_LOAN_PERIODS = #{rLoanPeriods,jdbcType=VARCHAR},
+      IS_ALL_DEALER = #{isAllDealer,jdbcType=CHAR},
+      SER_FIN_FEE = #{serFinFee,jdbcType=DECIMAL},
+      BEGIN_DATE = #{beginDate,jdbcType=DATE},
+      END_DATE = #{endDate,jdbcType=DATE},
+      PRO_SEQ = #{proSeq,jdbcType=TINYINT},
+      VAR = #{var,jdbcType=TINYINT},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      UPDATE_TIME = #{updateTime,jdbcType=TIMESTAMP},
+      USER_ID = #{userId,jdbcType=INTEGER},
+      USER_NAME = #{userName,jdbcType=VARCHAR},
+      REMARKS = #{remarks,jdbcType=VARCHAR},
+      RULE1 = #{rule1,jdbcType=VARCHAR},
+      RULE2 = #{rule2,jdbcType=VARCHAR},
+      RULE3 = #{rule3,jdbcType=VARCHAR},
+      RULE4 = #{rule4,jdbcType=VARCHAR},
+
+      work_flow = #{workFlow,jdbcType=VARCHAR},
+      taken_mode = #{takenMode}
+    where RULE_SEQ = #{ruleSeq,jdbcType=INTEGER}
+  </update>
+
+  <select id="querySerRulesForDealer" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    SELECT
+    r.*
+    FROM
+    ca_ser_fin_rule r
+    <include refid="queryWhere"/>
+    <if test="paging == true">
+      limit #{limit} offset #{start}
+    </if>
+
+  </select>
+
+  <select id="querySerRulesForDealerCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select
+    COUNT(1)
+    FROM
+    ca_ser_fin_rule r
+
+    <include refid="queryWhere"/>
+  </select>
+
+</mapper>

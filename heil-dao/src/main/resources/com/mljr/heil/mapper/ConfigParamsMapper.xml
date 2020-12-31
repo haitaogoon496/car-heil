@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.ConfigParamsMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.ConfigParams" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="param_key" property="paramKey" jdbcType="VARCHAR" />
+    <result column="param_value" property="paramValue" jdbcType="VARCHAR" />
+    <result column="param_desc" property="paramDesc" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="param_type" property="paramType" jdbcType="TINYINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, param_key, param_value, param_desc, status, param_type
+  </sql>
+  <sql id="queryCondition">
+    <where>
+      <if test="form != null " >
+        <if test="form.paramKey != null">
+          and p.param_key=#{form.paramKey}
+        </if>
+        <if test="form.status != null">
+          and p.status = #{form.status}
+        </if>
+        <if test="form.paramType != null">
+          and p.param_type = #{form.paramType}
+        </if>
+        <if test="form.tag != null and form.tag !=''">
+          AND EXISTS ( SELECT 1 FROM pd_tags b WHERE b.source_id = p.id AND b.buz_type = 16 AND FIND_IN_SET(#{form.tag},b.tags))
+        </if>
+      </if>
+    </where>
+  </sql>
+
+  <select id="pageQuery" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    select
+    <include refid="Base_Column_List" />
+    from pd_config_params p
+    <include refid="queryCondition"/>
+    ORDER BY p.id DESC
+    <if test="paging == true">
+      limit #{limit} offset #{start}
+    </if>
+
+  </select>
+  <!-- 获取所有数据用于缓存到redis中 -->
+  <select id="queryListForFlushRedis" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from pd_config_params
+    ORDER BY id DESC
+  </select>
+
+  <select id="queryCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select COUNT(1) from pd_config_params p <include refid="queryCondition"/>
+  </select>
+
+  <select id="queryByParamKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from pd_config_params where param_key = #{paramKey}
+  </select>
+
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from pd_config_params
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from pd_config_params
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mljr.heil.entity.ConfigParams" useGeneratedKeys="true" keyProperty="id">
+    insert into pd_config_params (id, param_key, param_value, 
+      param_desc, status, param_type)
+    values (#{id,jdbcType=INTEGER}, #{paramKey,jdbcType=VARCHAR}, #{paramValue,jdbcType=VARCHAR}, 
+      #{paramDesc,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT}, #{paramType,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.ConfigParams" useGeneratedKeys="true" keyProperty="id">
+    insert into pd_config_params
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="paramKey != null" >
+        param_key,
+      </if>
+      <if test="paramValue != null" >
+        param_value,
+      </if>
+      <if test="paramDesc != null" >
+        param_desc,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="paramType != null" >
+        param_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="paramKey != null" >
+        #{paramKey,jdbcType=VARCHAR},
+      </if>
+      <if test="paramValue != null" >
+        #{paramValue,jdbcType=VARCHAR},
+      </if>
+      <if test="paramDesc != null" >
+        #{paramDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="paramType != null" >
+        #{paramType,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.ConfigParams" >
+    update pd_config_params
+    <set >
+      <if test="paramKey != null" >
+        param_key = #{paramKey,jdbcType=VARCHAR},
+      </if>
+      <if test="paramValue != null" >
+        param_value = #{paramValue,jdbcType=VARCHAR},
+      </if>
+      <if test="paramDesc != null" >
+        param_desc = #{paramDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="paramType != null" >
+        param_type = #{paramType,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.ConfigParams" >
+    update pd_config_params
+    set param_key = #{paramKey,jdbcType=VARCHAR},
+      param_value = #{paramValue,jdbcType=VARCHAR},
+      param_desc = #{paramDesc,jdbcType=VARCHAR},
+      status = #{status,jdbcType=TINYINT},
+      param_type = #{paramType,jdbcType=TINYINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

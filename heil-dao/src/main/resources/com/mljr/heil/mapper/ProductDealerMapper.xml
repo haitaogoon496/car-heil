@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.ProductDealerMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.ProductDealer" >
+    <id column="P_ID" property="pId" jdbcType="INTEGER" />
+    <id column="dealer_code" property="dealerCode" jdbcType="INTEGER" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <resultMap id="BaseDealerResMap" type="com.mljr.heil.base.entity.BaseDealerRes" >
+    <id column="P_ID" property="pId" jdbcType="INTEGER" />
+    <id column="dealer_code" property="dealerCode" jdbcType="INTEGER" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    P_ID, dealer_code
+  </sql>
+
+  <select id="queryList" resultMap="BaseDealerResMap" parameterType="com.mljr.heil.base.form.DealerQueryForm" >
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM
+    ca_product_dealer
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="com.mljr.heil.entity.ProductDealerKey" >
+    delete from ca_product_dealer
+    where P_ID = #{pId,jdbcType=INTEGER}
+      and dealer_code = #{dealerCode,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mljr.heil.entity.ProductDealer" >
+    insert into ca_product_dealer (P_ID, dealer_code, update_time
+      )
+    values (#{pId,jdbcType=INTEGER}, #{dealerCode,jdbcType=INTEGER}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.ProductDealer" >
+    insert into ca_product_dealer
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pId != null" >
+        P_ID,
+      </if>
+      <if test="dealerCode != null" >
+        dealer_code,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pId != null" >
+        #{pId,jdbcType=INTEGER},
+      </if>
+      <if test="dealerCode != null" >
+        #{dealerCode,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+
+  <insert id="batchInsertIgnore" parameterType="java.util.List">
+    insert ignore into ca_product_dealer (p_id, dealer_code, update_time) values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.ruleSeq}, #{item.dealerCode},CURRENT_TIMESTAMP )
+    </foreach>
+
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.ProductDealer" >
+    update ca_product_dealer
+    <set >
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where P_ID = #{pId,jdbcType=INTEGER}
+      and dealer_code = #{dealerCode,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.ProductDealer" >
+    update ca_product_dealer
+    set update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where P_ID = #{pId,jdbcType=INTEGER}
+      and dealer_code = #{dealerCode,jdbcType=INTEGER}
+  </update>
+
+  <insert id="batchInsert" parameterType="java.util.List">
+    insert into ca_product_dealer (P_ID, dealer_code, update_time) values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.ruleSeq}, #{item.dealerCode},CURRENT_TIMESTAMP )
+    </foreach>
+  </insert>
+
+  <delete id="batchDelete" parameterType="java.util.List">
+    delete from ca_product_dealer
+    where p_id in
+    <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+      #{item.ruleSeq}
+    </foreach>
+    and dealer_code in
+    <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+      #{item.dealerCode}
+    </foreach>
+  </delete>
+
+  <delete id="deleteProductBindAllDealer" parameterType="java.lang.Integer">
+   delete from ca_product_dealer WHERE p_id = #{id}
+  </delete>
+</mapper>

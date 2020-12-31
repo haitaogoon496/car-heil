@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.fund.PdFundRulePropMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.fund.PdFundRuleProp" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="fund_rule_id" property="fundRuleId" jdbcType="INTEGER" />
+    <result column="prop_name" property="propName" jdbcType="VARCHAR" />
+    <result column="prop_value" property="propValue" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, fund_rule_id, prop_name, prop_value
+  </sql>
+
+  <sql id="queryWhere">
+    <where>
+      <if test="form != null " >
+        <if test="form.fundRuleId != null and form.fundRuleId !=''">
+          and fund_rule_id = #{form.fundRuleId}
+        </if>
+      </if>
+    </where>
+  </sql>
+
+  <select id="pageQuery" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    select
+    <include refid="Base_Column_List" />
+    from pd_fund_rule_prop r
+    <include refid="queryWhere"/>
+    <if test="paging == true">
+      limit #{limit} offset #{start}
+    </if>
+  </select>
+
+  <select id="queryCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select
+    COUNT(1)
+    from pd_fund_rule_prop r
+    <include refid="queryWhere"/>
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from pd_fund_rule_prop
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from pd_fund_rule_prop
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mljr.heil.entity.fund.PdFundRuleProp" >
+    insert into pd_fund_rule_prop (id, fund_rule_id, prop_name,
+    prop_value)
+    values (#{id,jdbcType=INTEGER}, #{fundRuleId,jdbcType=INTEGER}, #{propName,jdbcType=VARCHAR},
+    #{propValue,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.fund.PdFundRuleProp" >
+    insert into pd_fund_rule_prop
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="fundRuleId != null" >
+        fund_rule_id,
+      </if>
+      <if test="propName != null" >
+        prop_name,
+      </if>
+      <if test="propValue != null" >
+        prop_value,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="fundRuleId != null" >
+        #{fundRuleId,jdbcType=INTEGER},
+      </if>
+      <if test="propName != null" >
+        #{propName,jdbcType=VARCHAR},
+      </if>
+      <if test="propValue != null" >
+        #{propValue,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.fund.PdFundRuleProp" >
+    update pd_fund_rule_prop
+    <set >
+      <if test="fundRuleId != null" >
+        fund_rule_id = #{fundRuleId,jdbcType=INTEGER},
+      </if>
+      <if test="propName != null" >
+        prop_name = #{propName,jdbcType=VARCHAR},
+      </if>
+      <if test="propValue != null" >
+        prop_value = #{propValue,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.fund.PdFundRuleProp" >
+    update pd_fund_rule_prop
+    set fund_rule_id = #{fundRuleId,jdbcType=INTEGER},
+    prop_name = #{propName,jdbcType=VARCHAR},
+    prop_value = #{propValue,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <delete id="deleteByFundRuleId" parameterType="java.lang.Integer">
+    delete from pd_fund_rule_prop where fund_rule_id = #{fundRuleId}
+  </delete>
+
+  <insert id="batchInsert" parameterType="java.util.List">
+    insert into pd_fund_rule_prop (fund_rule_id,prop_name,prop_value) VALUES
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.fundRuleId,jdbcType=INTEGER}, #{item.propName},#{item.propValue})
+    </foreach>
+
+  </insert>
+</mapper>

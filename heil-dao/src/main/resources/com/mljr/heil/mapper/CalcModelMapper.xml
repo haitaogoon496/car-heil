@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mljr.heil.mapper.CalcModelMapper">
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.CalcModel">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="product_type_id" jdbcType="TINYINT" property="productTypeId" />
+    <result column="product_id" jdbcType="INTEGER" property="productId" />
+    <result column="rule_type" jdbcType="TINYINT" property="ruleType" />
+    <result column="rule_id" jdbcType="INTEGER" property="ruleId" />
+    <result column="formula_content" jdbcType="VARCHAR" property="formulaContent" />
+    <result column="formula_code" jdbcType="VARCHAR" property="formulaCode" />
+    <result column="formula_name" jdbcType="VARCHAR" property="formulaName" />
+    <result column="round_type" jdbcType="TINYINT" property="roundType" />
+    <result column="scale" jdbcType="INTEGER" property="scale" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, product_type_id, product_id, rule_type, rule_id, formula_content, formula_code, 
+    formula_name, round_type, scale, status, create_time, update_time
+  </sql>
+
+  <sql id="queryCondition">
+    <where>
+      <if test="form != null " >
+
+        <if test="form.productTypeId != null">
+          and product_type_id = #{form.productTypeId}
+        </if>
+        <if test="form.productId != null">
+          and product_id=#{form.productId}
+        </if>
+        <if test="form.ruleType != null">
+          and rule_Type=#{form.ruleType}
+        </if>
+        <if test="form.ruleId != null">
+          and rule_id=#{form.ruleId}
+        </if>
+        <if test="form.formulaCode != null">
+          and formula_code=#{form.formulaCode}
+        </if>
+        <if test="form.formulaName != null">
+          and formula_name LIKE  concat('%',#{form.formulaName},'%')
+        </if>
+        <if test="form.status != null">
+          and status = #{form.status}
+        </if>
+
+      </if>
+    </where>
+  </sql>
+
+  <select id="pageQuery" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    select
+    <include refid="Base_Column_List" />
+    from pd_calc_model
+    <include refid="queryCondition"/>
+    ORDER BY id asc
+    <if test="paging == true">
+      limit #{limit} offset #{start}
+    </if>
+
+  </select>
+
+  <select id="queryCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select COUNT(1) from pd_calc_model <include refid="queryCondition"/>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from pd_calc_model
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from pd_calc_model
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mljr.heil.entity.CalcModel" useGeneratedKeys="true" keyProperty="id">
+    insert into pd_calc_model (id, product_type_id, product_id, 
+      rule_type, rule_id, formula_content, 
+      formula_code, formula_name, round_type, 
+      scale, status, create_time, 
+      update_time)
+    values (#{id,jdbcType=INTEGER}, #{productTypeId,jdbcType=TINYINT}, #{productId,jdbcType=INTEGER}, 
+      #{ruleType,jdbcType=TINYINT}, #{ruleId,jdbcType=INTEGER}, #{formulaContent,jdbcType=VARCHAR}, 
+      #{formulaCode,jdbcType=VARCHAR}, #{formulaName,jdbcType=VARCHAR}, #{roundType,jdbcType=TINYINT}, 
+      #{scale,jdbcType=INTEGER}, #{status,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.CalcModel" useGeneratedKeys="true" keyProperty="id">
+    insert into pd_calc_model
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="productTypeId != null">
+        product_type_id,
+      </if>
+      <if test="productId != null">
+        product_id,
+      </if>
+      <if test="ruleType != null">
+        rule_type,
+      </if>
+      <if test="ruleId != null">
+        rule_id,
+      </if>
+      <if test="formulaContent != null">
+        formula_content,
+      </if>
+      <if test="formulaCode != null">
+        formula_code,
+      </if>
+      <if test="formulaName != null">
+        formula_name,
+      </if>
+      <if test="roundType != null">
+        round_type,
+      </if>
+      <if test="scale != null">
+        scale,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="productTypeId != null">
+        #{productTypeId,jdbcType=TINYINT},
+      </if>
+      <if test="productId != null">
+        #{productId,jdbcType=INTEGER},
+      </if>
+      <if test="ruleType != null">
+        #{ruleType,jdbcType=TINYINT},
+      </if>
+      <if test="ruleId != null">
+        #{ruleId,jdbcType=INTEGER},
+      </if>
+      <if test="formulaContent != null">
+        #{formulaContent,jdbcType=VARCHAR},
+      </if>
+      <if test="formulaCode != null">
+        #{formulaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="formulaName != null">
+        #{formulaName,jdbcType=VARCHAR},
+      </if>
+      <if test="roundType != null">
+        #{roundType,jdbcType=TINYINT},
+      </if>
+      <if test="scale != null">
+        #{scale,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.CalcModel">
+    update pd_calc_model
+    <set>
+      <if test="productTypeId != null">
+        product_type_id = #{productTypeId,jdbcType=TINYINT},
+      </if>
+      <if test="productId != null">
+        product_id = #{productId,jdbcType=INTEGER},
+      </if>
+      <if test="ruleType != null">
+        rule_type = #{ruleType,jdbcType=TINYINT},
+      </if>
+      <if test="ruleId != null">
+        rule_id = #{ruleId,jdbcType=INTEGER},
+      </if>
+      <if test="formulaContent != null">
+        formula_content = #{formulaContent,jdbcType=VARCHAR},
+      </if>
+      <if test="formulaCode != null">
+        formula_code = #{formulaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="formulaName != null">
+        formula_name = #{formulaName,jdbcType=VARCHAR},
+      </if>
+      <if test="roundType != null">
+        round_type = #{roundType,jdbcType=TINYINT},
+      </if>
+      <if test="scale != null">
+        scale = #{scale,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.CalcModel">
+    update pd_calc_model
+    set product_type_id = #{productTypeId,jdbcType=TINYINT},
+      product_id = #{productId,jdbcType=INTEGER},
+      rule_type = #{ruleType,jdbcType=TINYINT},
+      rule_id = #{ruleId,jdbcType=INTEGER},
+      formula_content = #{formulaContent,jdbcType=VARCHAR},
+      formula_code = #{formulaCode,jdbcType=VARCHAR},
+      formula_name = #{formulaName,jdbcType=VARCHAR},
+      round_type = #{roundType,jdbcType=TINYINT},
+      scale = #{scale,jdbcType=INTEGER},
+      status = #{status,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+</mapper>

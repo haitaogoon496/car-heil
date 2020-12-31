@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mljr.heil.mapper.CalcLogMapper">
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.CalcLog">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="app_code" jdbcType="VARCHAR" property="appCode" />
+    <result column="request_param" jdbcType="VARCHAR" property="requestParam" />
+    <result column="response_result" jdbcType="VARCHAR" property="responseResult" />
+    <result column="source" jdbcType="VARCHAR" property="source" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="buz_type" jdbcType="INTEGER" property="buzType" />
+    <result column="is_submit" jdbcType="INTEGER" property="isSubmit" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, app_code, request_param, response_result, source, create_time,buz_type,is_submit
+  </sql>
+
+  <sql id="queryCondition">
+    <where>
+      <if test="form != null " >
+        <if test="form.appCode != null">
+          and app_code = #{form.appCode}
+        </if>
+        <if test="form.buzType != null">
+          and buz_type = #{form.buzType}
+        </if>
+        <if test="form.isSubmit != null">
+          and is_submit = #{form.isSubmit}
+        </if>
+        <if test="form.source != null">
+          and source = #{form.source}
+        </if>
+        <if test="form.createTime != null">
+          and create_time >= #{form.createTime}
+        </if>
+      </if>
+    </where>
+  </sql>
+
+  <select id="pageQuery" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    select
+    <include refid="Base_Column_List" />
+    from pd_calc_log
+    <include refid="queryCondition"/>
+    ORDER BY id DESC
+    <if test="paging == true">
+      limit #{limit} offset #{start}
+    </if>
+
+  </select>
+
+  <select id="queryCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select COUNT(1) from pd_calc_log <include refid="queryCondition"/>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from pd_calc_log
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from pd_calc_log
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mljr.heil.entity.CalcLog">
+    insert into pd_calc_log (id, app_code, request_param, 
+      response_result, source, create_time
+      )
+    values (#{id,jdbcType=INTEGER}, #{appCode,jdbcType=VARCHAR}, #{requestParam,jdbcType=VARCHAR}, 
+      #{responseResult,jdbcType=VARCHAR}, #{source,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.CalcLog">
+    insert into pd_calc_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="appCode != null">
+        app_code,
+      </if>
+      <if test="requestParam != null">
+        request_param,
+      </if>
+      <if test="responseResult != null">
+        response_result,
+      </if>
+      <if test="source != null">
+        source,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="appCode != null">
+        #{appCode,jdbcType=VARCHAR},
+      </if>
+      <if test="requestParam != null">
+        #{requestParam,jdbcType=VARCHAR},
+      </if>
+      <if test="responseResult != null">
+        #{responseResult,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null">
+        #{source,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.CalcLog">
+    update pd_calc_log
+    <set>
+      <if test="appCode != null">
+        app_code = #{appCode,jdbcType=VARCHAR},
+      </if>
+      <if test="requestParam != null">
+        request_param = #{requestParam,jdbcType=VARCHAR},
+      </if>
+      <if test="responseResult != null">
+        response_result = #{responseResult,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null">
+        source = #{source,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.CalcLog">
+    update pd_calc_log
+    set app_code = #{appCode,jdbcType=VARCHAR},
+      request_param = #{requestParam,jdbcType=VARCHAR},
+      response_result = #{responseResult,jdbcType=VARCHAR},
+      source = #{source,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+</mapper>

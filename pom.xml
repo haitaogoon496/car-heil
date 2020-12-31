@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>heil</name>
+    <groupId>com.mljr</groupId>
+    <artifactId>car-heil</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <modules>
+        <module>heil-web</module>
+        <module>heil-service</module>
+        <module>heil-common</module>
+        <module>heil-dao</module>
+    </modules>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.7.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <properties>
+        <heil-dao.version>1.0-SNAPSHOT</heil-dao.version>
+        <heil-common.version>1.0-SNAPSHOT</heil-common.version>
+        <heil-service.version>1.0-SNAPSHOT</heil-service.version>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+        <servlet-api.version>3.0-alpha-1</servlet-api.version>
+        <mysql.version>5.1.39</mysql.version>
+        <druid.version>1.0.26</druid.version>
+        <mybatis-spring-boot.version>1.1.1</mybatis-spring-boot.version>
+        <fastjson.version>1.1.43</fastjson.version>
+        <spring-boot-starter-data-redis.version>1.5.7.RELEASE</spring-boot-starter-data-redis.version>
+        <spring-boot-starter-data-mongodb.version>1.5.7.RELEASE</spring-boot-starter-data-mongodb.version>
+        <httpclient.version>4.5.3</httpclient.version>
+        <spring-boot-starter-aop.version>1.5.7.RELEASE</spring-boot-starter-aop.version>
+        <guava.version>19.0</guava.version>
+        <lyqc.base.version>1.5.0-SNAPSHOT</lyqc.base.version>
+        <car.commons.version>2.2.14-SNAPSHOT</car.commons.version>
+        <springfox.version>2.7.0</springfox.version>
+        <swagger.version>1.5.13</swagger.version>
+        <oval.version>1.90</oval.version>
+        <car.commons.net.version>2.2.12-SNAPSHOT</car.commons.net.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.mljr.commons</groupId>
+            <artifactId>car-commons-all</artifactId>
+            <version>${car.commons.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.alibaba</groupId>
+                    <artifactId>fastjson</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.lyqc.base</groupId>
+                    <artifactId>lyqc-base</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.mljr.commons</groupId>
+                    <artifactId>car-commons-component</artifactId>
+                </exclusion>
+
+                <exclusion>
+                    <groupId>com.mljr.sdk</groupId>
+                    <artifactId>sdk-carrier</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.mljr.commons</groupId>
+            <artifactId>car-commons-net</artifactId>
+            <version>${car.commons.net.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lyqc.base</groupId>
+            <artifactId>lyqc-base</artifactId>
+            <version>${lyqc.base.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${springfox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${springfox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>${swagger.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>swagger-bootstrap-ui</artifactId>
+            <version>1.7</version>
+        </dependency>
+        <!-- 请求头参数分析包 -->
+        <dependency>
+            <groupId>eu.bitwalker</groupId>
+            <artifactId>UserAgentUtils</artifactId>
+            <version>1.20</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <!-- 如果在使用自带tomcat请注释下面，如果使用第三方tomcat不要注释下面 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- 支持 @ConfigurationProperties 注解 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>${servlet-api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- mysql 驱动 -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+
+        <!-- 支持spring jdbc -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>${druid.version}</version>
+        </dependency>
+
+        <!-- mybatis 整合spring boot  -->
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>${mybatis-spring-boot.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <version>${spring-boot-starter-data-redis.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+            <version>${spring-boot-starter-data-mongodb.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpclient.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+            <version>${spring-boot-starter-aop.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+        <!-- 私人包 -->
+        <!--<dependency>
+            <groupId>com.singularsys</groupId>
+            <artifactId>jep-java</artifactId>
+            <version>3.4</version>
+            <classifier>trial</classifier>
+        </dependency>-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.29</version>
+        </dependency>
+
+    </dependencies>
+
+
+    <profiles>
+        <profile>
+            <!-- 本地开发环境 -->
+            <id>local</id>
+            <properties>
+                <profileActive>local</profileActive>
+            </properties>
+            <!-- 设置默认激活这个配置 -->
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>dev-zy</id>
+            <properties>
+                <profileActive>dev-zy</profileActive>
+            </properties>
+        </profile>
+        <profile>
+            <id>dev-qd</id>
+            <properties>
+                <profileActive>dev-qd</profileActive>
+            </properties>
+        </profile>
+        <profile>
+            <id>test-zy</id>
+            <properties>
+                <profileActive>test-zy</profileActive>
+            </properties>
+        </profile>
+        <profile>
+            <id>test-qd</id>
+            <properties>
+                <profileActive>test-qd</profileActive>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>qa-betaC-zy</id>
+            <properties>
+                <profileActive>qa-betaC-zy</profileActive>
+            </properties>
+        </profile>
+        <profile>
+            <id>qa-betaC-qd</id>
+            <properties>
+                <profileActive>qa-betaC-qd</profileActive>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>container-zy</id>
+            <properties>
+                <profileActive>container-zy</profileActive>
+            </properties>
+        </profile>
+        <profile>
+            <id>container-qd</id>
+            <properties>
+                <profileActive>container-qd</profileActive>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod-zy</id>
+            <properties>
+                <profileActive>prod-zy</profileActive>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod-qd</id>
+            <properties>
+                <profileActive>prod-qd</profileActive>
+            </properties>
+        </profile>
+    </profiles>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.4.2</version>
+                <configuration>
+                    <testFailureIgnore>true</testFailureIgnore>
+                    <skipTests>false</skipTests>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.9</version>
+                <executions>
+                    <execution>
+                        <id>default-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <!-- implementation is needed only for Maven 2 -->
+                                <rule implementation="org.jacoco.maven.RuleConfiguration">
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <!-- implementation is needed only for Maven 2 -->
+                                        <limit implementation="org.jacoco.report.check.Limit">
+                                            <counter>COMPLEXITY</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.00</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+
+
+
+    </build>
+
+</project>

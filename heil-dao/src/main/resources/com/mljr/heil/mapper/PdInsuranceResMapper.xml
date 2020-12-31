@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.PdInsuranceResMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.PdInsuranceRes" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="classify" property="classify" jdbcType="INTEGER" />
+    <result column="product_ids" property="productIds" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, classify, product_ids
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from pd_insurance_res
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from pd_insurance_res
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mljr.heil.entity.PdInsuranceRes" keyProperty="id" useGeneratedKeys="true">
+    insert into pd_insurance_res (id, classify, product_ids
+      )
+    values (#{id,jdbcType=INTEGER}, #{classify,jdbcType=INTEGER}, #{productIds,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.PdInsuranceRes" keyProperty="id" useGeneratedKeys="true">
+    insert into pd_insurance_res
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="classify != null" >
+        classify,
+      </if>
+      <if test="productIds != null" >
+        product_ids,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="classify != null" >
+        #{classify,jdbcType=INTEGER},
+      </if>
+      <if test="productIds != null" >
+        #{productIds,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.PdInsuranceRes" >
+    update pd_insurance_res
+    <set >
+      <if test="classify != null" >
+        classify = #{classify,jdbcType=INTEGER},
+      </if>
+      <if test="productIds != null" >
+        product_ids = #{productIds,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.PdInsuranceRes" >
+    update pd_insurance_res
+    set classify = #{classify,jdbcType=INTEGER},
+      product_ids = #{productIds,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

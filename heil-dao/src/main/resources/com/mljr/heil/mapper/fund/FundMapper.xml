@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.fund.FundMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.fund.Fund" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="fund_no" property="fundNo" jdbcType="VARCHAR" />
+    <result column="fund_name" property="fundName" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="DATE" />
+    <result column="update_time" property="updateTime" jdbcType="DATE" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id,fund_no,fund_name,status,remark,create_time,update_time
+  </sql>
+
+  <sql id="queryWhere">
+    <where>
+      1=1
+      <if test="form.id != null">
+        AND id = #{form.id}
+      </if>
+      <if test="form.fundNo != null and form.fundNo != ''">
+        AND fund_no = #{form.fundNo}
+      </if>
+      <if test="form.fundName != null and form.fundName != ''">
+        AND fund_name LIKE CONCAT('%',#{form.fundName},'%')
+      </if>
+      <if test="form.status != null">
+        AND status = #{form.status}
+      </if>
+      <if test="form.remark != null and form.remark != ''">
+        AND remark = #{form.remark}
+      </if>
+      <if test="form.createTime != null and form.createTime != ''">
+        AND create_time = #{form.createTime}
+      </if>
+      <if test="form.updateTime != null and form.updateTime != ''">
+        AND update_time = #{form.updateTime}
+      </if>
+    </where>
+  </sql>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.mljr.heil.form.fund.FundForm" >
+    select
+    <include refid="Base_Column_List" />
+    from pd_fund
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.form.fund.FundForm">
+    update pd_fund SET fund_no = #{fundNo},fund_name = #{fundName},status = #{status},
+            remark = #{remark}
+            WHERE  id = #{id}
+  </update>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.fund.Fund">
+    update pd_fund
+    <set >
+    <if test="fundNo != null" >
+      fund_no = #{fundNo},
+    </if>
+    <if test="fundName != null" >
+      fund_name = #{fundName},
+    </if>
+    <if test="status != null" >
+      status = #{status},
+    </if>
+      <if test="remark != null" >
+        remark = #{remark},
+      </if>
+  </set>
+    WHERE  id = #{id}
+  </update>
+
+  <delete id="deleteByPrimaryKey" parameterType="com.mljr.heil.form.fund.FundForm">
+    DELETE FROM pd_fund WHERE id = #{id}
+  </delete>
+
+  <insert id="insert" parameterType="com.mljr.heil.form.fund.FundForm">
+    INSERT  INTO pd_fund(fund_no,fund_name,status,remark) VALUES (#{fundNo},#{fundName},#{status},#{remark})
+  </insert>
+
+    <select id="queryList" resultMap="BaseResultMap" parameterType="com.mljr.heil.form.fund.FundForm">
+      SELECT
+      <include refid="Base_Column_List" />
+      FROM
+      pd_fund
+      <include refid="queryWhere"/>
+    </select>
+
+  <select id="pageQuery" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM
+    pd_fund
+    <include refid="queryWhere"/>
+    limit #{start},#{limit}
+  </select>
+
+  <select id="queryCount" resultType="int" parameterType="com.mljr.heil.form.fund.FundForm">
+    SELECT
+    COUNT(1)
+    FROM
+    pd_fund
+    <include refid="queryWhere"/>
+  </select>
+
+
+  <sql id="ProductCondition">
+    <if test="form.productId != null">
+      AND a.P_ID = #{form.productId}
+    </if>
+    <if test="form.productName != null and form.productName != ''">
+      AND a.P_NAME LIKE CONCAT('%',#{form.productName},'%')
+    </if>
+    <if test="form.productTypeId != null">
+      AND b.P_TYPE_ID = #{form.productTypeId}
+    </if>
+  </sql>
+
+  <select id="selectBindProductByParams" resultType="com.mljr.heil.entity.Product" parameterType="com.lyqc.base.page.PageForm">
+    select a.P_ID AS pId,a.PRODUCT_COE AS productCoe, a.P_NAME AS pName, b.P_CLASS_NAME AS typeName
+    from ca_product a join ca_product_type b on a.TYPE_ = b.P_TYPE_ID
+    where a.fund_id = #{form.id}
+    <include refid="ProductCondition"/>
+    limit #{start},#{limit}
+  </select>
+
+  <select id="getBindProductCount" resultType="java.lang.Integer" parameterType="com.lyqc.base.page.PageForm">
+    select COUNT(1)
+    from ca_product a join ca_product_type b on a.TYPE_ = b.P_TYPE_ID
+    where  a.fund_id = #{form.id}
+    <include refid="ProductCondition"/>
+  </select>
+
+  <select id="selectNotBindProductByParams" resultType="com.mljr.heil.entity.Product" parameterType="com.lyqc.base.page.PageForm">
+    select a.P_ID AS pId,a.PRODUCT_COE AS productCoe, a.P_NAME AS pName, b.P_CLASS_NAME AS typeName
+    from ca_product a join ca_product_type b on a.TYPE_ = b.P_TYPE_ID
+    where a.fund_id != #{form.id} and a.fund_id = 0
+    <include refid="ProductCondition"/>
+    limit #{start},#{limit}
+  </select>
+
+  <select id="getNotBindProductCount" resultType="java.lang.Integer" parameterType="com.lyqc.base.page.PageForm">
+    select COUNT(1)
+    from ca_product a join ca_product_type b on a.TYPE_ = b.P_TYPE_ID
+    where a.fund_id != #{form.id} and a.fund_id = 0
+    <include refid="ProductCondition"/>
+  </select>
+
+</mapper>

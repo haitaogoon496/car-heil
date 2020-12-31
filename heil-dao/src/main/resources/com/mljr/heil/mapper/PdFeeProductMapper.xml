@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.PdFeeProductMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.PdFeeProduct" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="res_id" property="resId" jdbcType="INTEGER" />
+    <result column="product_id" property="productId" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, res_id, product_id
+  </sql>
+
+
+  <sql id="ProductCondition">
+    <if test="form.productId != null">
+      AND a.P_ID = #{form.productId}
+    </if>
+    <if test="form.productName != null and form.productName != ''">
+      AND a.P_NAME LIKE CONCAT('%',#{form.productName},'%')
+    </if>
+    <if test="form.productTypeId != null">
+      AND b.P_TYPE_ID = #{form.productTypeId}
+    </if>
+    <if test="form.tagList != null and form.tagList.size > 0">
+      AND EXISTS ( SELECT 1 FROM pd_tags b WHERE b.source_id = a.p_id AND b.buz_type = 10
+      <foreach collection="form.tagList" item="item" index="index">
+        AND FIND_IN_SET(#{item},b.tags)
+        <if test="index == form.tagList.size()-1">
+          )
+        </if>
+      </foreach>
+    </if>
+  </sql>
+
+  <select id="selectBindProductByParams" resultType="com.mljr.heil.entity.Product" parameterType="com.lyqc.base.page.PageForm">
+    select a.P_ID AS pId,a.PRODUCT_COE AS productCoe, a.P_NAME AS pName, b.P_CLASS_NAME AS typeName
+    from ca_product a join ca_product_type b on a.TYPE_ = b.P_TYPE_ID
+    where  EXISTS (select 1 from pd_fee_product f where f.product_id=a.P_ID AND f.res_id = #{form.resId})
+    <include refid="ProductCondition"/>
+    <if test="paging == true">
+      limit #{start},#{limit}
+    </if>
+  </select>
+
+  <select id="getBindProductCount" resultType="java.lang.Integer" parameterType="com.lyqc.base.page.PageForm">
+    select COUNT(1)
+    from ca_product a join ca_product_type b on a.TYPE_ = b.P_TYPE_ID
+    where  EXISTS (select 1 from pd_fee_product f where f.product_id=a.P_ID AND f.res_id = #{form.resId} )
+    <include refid="ProductCondition"/>
+  </select>
+
+  <select id="selectNotBindProductByParams" resultType="com.mljr.heil.entity.Product" parameterType="com.lyqc.base.page.PageForm">
+    select a.P_ID AS pId,a.PRODUCT_COE AS productCoe, a.P_NAME AS pName, b.P_CLASS_NAME AS typeName
+    from ca_product a join ca_product_type b on a.TYPE_ = b.P_TYPE_ID
+    where NOT EXISTS (select 1 from pd_fee_product f where f.product_id=a.P_ID AND f.res_id = #{form.resId} )
+    <include refid="ProductCondition"/>
+    <if test="paging == true">
+      limit #{start},#{limit}
+    </if>
+  </select>
+
+  <select id="getNotBindProductCount" resultType="java.lang.Integer" parameterType="com.lyqc.base.page.PageForm">
+    select COUNT(1)
+    from ca_product a join ca_product_type b on a.TYPE_ = b.P_TYPE_ID
+    where NOT EXISTS (select 1 from pd_fee_product f where f.product_id=a.P_ID AND f.res_id = #{form.resId} )
+    <include refid="ProductCondition"/>
+  </select>
+
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from pd_fee_product
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from pd_fee_product
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mljr.heil.entity.PdFeeProduct" >
+    insert into pd_fee_product (id, res_id, product_id
+      )
+    values (#{id,jdbcType=INTEGER}, #{resId,jdbcType=INTEGER}, #{productId,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.PdFeeProduct" >
+    insert into pd_fee_product
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="resId != null" >
+        res_id,
+      </if>
+      <if test="productId != null" >
+        product_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="resId != null" >
+        #{resId,jdbcType=INTEGER},
+      </if>
+      <if test="productId != null" >
+        #{productId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.PdFeeProduct" >
+    update pd_fee_product
+    <set >
+      <if test="resId != null" >
+        res_id = #{resId,jdbcType=INTEGER},
+      </if>
+      <if test="productId != null" >
+        product_id = #{productId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.PdFeeProduct" >
+    update pd_fee_product
+    set res_id = #{resId,jdbcType=INTEGER},
+      product_id = #{productId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <insert id="batchInsert" parameterType="java.util.List">
+    insert into  pd_fee_product (res_id, product_id) values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.resId}, #{item.productId} )
+    </foreach>
+  </insert>
+
+  <insert id="batchInsertIgnore" parameterType="java.util.List">
+    insert ignore into   pd_fee_product (res_id, product_id) values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.resId}, #{item.productId} )
+    </foreach>
+  </insert>
+
+  <delete id="batchDelete" parameterType="com.mljr.heil.form.PdFeeProductForm">
+    delete from pd_fee_product
+    <include refid="delWhere"/>
+  </delete>
+  <delete id="deleteByRuleId" parameterType="java.lang.Integer">
+    delete from pd_fee_product
+    where res_id = #{ruleId}
+  </delete>
+  <sql id="delWhere">
+    <where>
+      <if test="resId != null and resId != ''">
+        AND res_id = #{resId}
+      </if>
+      <if test="productIdList != null and productIdList.size() > 0">
+        AND product_id in
+        <foreach collection="productIdList" item="item" index="index" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+      </if>
+      <if test="productId != null and productId != ''">
+        AND product_id = #{productId}
+      </if>
+
+      <if test="ruleIdList != null and ruleIdList.size() > 0">
+        AND res_id in
+        <foreach collection="ruleIdList" item="item" index="index" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+      </if>
+
+    </where>
+
+  </sql>
+
+
+
+  <resultMap id="pdFeeRuleMap" type="com.mljr.heil.entity.PdFeeRule" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="classify" property="classify" jdbcType="TINYINT" />
+    <result column="rule_name" property="ruleName" jdbcType="VARCHAR" />
+    <result column="rate_value" property="rateValue" jdbcType="DECIMAL" />
+    <result column="loan_period" property="loanPeriod" jdbcType="VARCHAR" />
+    <result column="license_type" property="licenseType" jdbcType="VARCHAR" />
+    <result column="is_all_dealer" property="isAllDealer" jdbcType="TINYINT" />
+    <result column="is_all_product" property="isAllProduct" jdbcType="TINYINT" />
+    <result column="sale_price_min" property="salePriceMin" jdbcType="DECIMAL" />
+    <result column="sale_price_max" property="salePriceMax" jdbcType="DECIMAL" />
+    <result column="car_loan_amount_min" property="carLoanAmountMin" jdbcType="DECIMAL" />
+    <result column="car_loan_amount_max" property="carLoanAmountMax" jdbcType="DECIMAL" />
+    <result column="payment_scale_min" property="paymentScaleMin" jdbcType="DECIMAL" />
+    <result column="payment_scale_max" property="paymentScaleMax" jdbcType="DECIMAL" />
+    <result column="vehicle_miles_min" property="vehicleMilesMin" jdbcType="DECIMAL" />
+    <result column="vehicle_miles_max" property="vehicleMilesMax" jdbcType="DECIMAL" />
+    <result column="is_old" property="isOld" jdbcType="VARCHAR" />
+    <result column="is_lcv" property="isLcv" jdbcType="VARCHAR" />
+    <result column="extend_props" property="extendProps" jdbcType="VARCHAR" />
+    <result column="vehicle_age_min" property="vehicleAgeMin" jdbcType="DECIMAL" />
+    <result column="vehicle_age_max" property="vehicleAgeMax" jdbcType="DECIMAL" />
+    <result column="rebate_value" property="rebateValue" jdbcType="DECIMAL" />
+    <result column="status" property="status"/>
+  </resultMap>
+  <select id="queryPdFeeRulesForProduct" resultMap="pdFeeRuleMap" parameterType="com.lyqc.base.page.PageForm">
+    SELECT
+    a.*
+    FROM
+    pd_fee_rule a
+    <include refid="queryWhereForPdFee"/>
+    <if test="paging == true">
+      limit #{limit} offset #{start}
+    </if>
+
+  </select>
+
+  <select id="queryPdFeeRulesForProductCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select
+    COUNT(1)
+    FROM
+    pd_fee_rule a
+    <include refid="queryWhereForPdFee"/>
+  </select>
+
+
+  <sql id="queryWhereForPdFee">
+    <where>
+      <if test="form.id != null">
+          AND id = #{form.id}
+      </if>
+      <if test="form.resId != null">
+        AND res_id = #{form.resId}
+      </if>
+      <if test="form.ruleName != null and form.ruleName != ''">
+        AND rule_name = #{form.ruleName}
+      </if>
+      <if test="form.productId != null and form.bindFlag == true">
+        AND ( EXISTS (
+        SELECT
+        1
+        FROM
+        pd_fee_product b
+        WHERE
+        b.res_id = a.id
+        AND  b.product_id = #{form.productId}
+        )
+        or a.is_all_product = 1)
+      </if>
+      <if test="form.productId != null and form.bindFlag == false">
+        AND NOT EXISTS (
+        SELECT
+        1
+        FROM
+        pd_fee_product b
+        WHERE
+        b.res_id = a.id
+        AND  b.product_id = #{form.productId}
+        )
+        and a.is_all_product = 0
+      </if>
+      <if test="form.pdFeeClassify != null">
+        AND a.classify = #{form.pdFeeClassify}
+      </if>
+
+      <if test="form.isOld != null and form.isOld !=''">
+        AND (
+        CASE
+        WHEN (isnull(a.IS_OLD)OR (a.IS_OLD = ''))
+        THEN
+        FIND_IN_SET( #{form.isOld}, '0,1')
+        ELSE
+        FIND_IN_SET( #{form.isOld}, a.IS_OLD)
+        END
+        )
+      </if>
+      <if test="form.isLcv != null and form.isLcv !=''">
+        AND (
+        CASE
+        WHEN (isnull(a.IS_LCV) OR (a.IS_LCV = ''))
+        THEN
+        FIND_IN_SET( #{form.isLcv}, '0,1,2,3')
+        ELSE
+        FIND_IN_SET( #{form.isLcv}, a.IS_LCV)
+        END
+        )
+      </if>
+      <if test="form.loanPeriod != null and form.loanPeriod !=''">
+        AND (
+        CASE
+        WHEN (isnull(a.loan_period)OR (a.loan_period = ''))
+        THEN
+        FIND_IN_SET(#{form.loanPeriod}, '6,12,18,24,30,36,42,48')
+        ELSE
+        FIND_IN_SET(#{form.loanPeriod}, a.loan_period)
+        END
+        )
+      </if>
+
+      <if test="form.status != null">
+        and a.status = #{form.status}
+      </if>
+      <if test="form.tagList != null and form.tagList.size > 0">
+        AND EXISTS ( SELECT 1 FROM pd_tags b WHERE b.source_id = a.id AND b.buz_type = #{form.buzType}
+        <foreach collection="form.tagList" item="item" index="index">
+          AND FIND_IN_SET(#{item},b.tags)
+          <if test="index == form.tagList.size()-1">
+            )
+          </if>
+        </foreach>
+      </if>
+    </where>
+
+  </sql>
+
+</mapper>

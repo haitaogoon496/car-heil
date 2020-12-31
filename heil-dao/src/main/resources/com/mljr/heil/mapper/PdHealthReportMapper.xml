@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.PdHealthReportMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.PdHealthReport" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="report_time" property="reportTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.mljr.heil.entity.PdHealthReport" extends="BaseResultMap" >
+    <result column="report_detail" property="reportDetail" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, report_time
+  </sql>
+  <sql id="Blob_Column_List" >
+    report_detail
+  </sql>
+
+  <sql id="queryCondition">
+    <where>
+      <if test="form != null " >
+        <if test="form.id != null and form.id !=''">
+          and id = #{form.id}
+        </if>
+        <if test="form.reportTime != null">
+          and report_time >= #{form.reportTime}
+        </if>
+
+      </if>
+    </where>
+  </sql>
+  <select id="pageQuery" resultMap="ResultMapWithBLOBs" parameterType="com.lyqc.base.page.PageForm">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from pd_health_report
+    <include refid="queryCondition"/>
+    order by id DESC
+    limit #{limit} offset #{start}
+  </select>
+
+  <select id="queryCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select COUNT(1) from pd_health_report
+    <include refid="queryCondition"/>
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from pd_health_report
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from pd_health_report
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mljr.heil.entity.PdHealthReport" >
+    insert into pd_health_report (id, report_time, report_detail
+      )
+    values (#{id,jdbcType=INTEGER}, #{reportTime,jdbcType=TIMESTAMP}, #{reportDetail,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.PdHealthReport" >
+    insert into pd_health_report
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="reportTime != null" >
+        report_time,
+      </if>
+      <if test="reportDetail != null" >
+        report_detail,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="reportTime != null" >
+        #{reportTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reportDetail != null" >
+        #{reportDetail,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.PdHealthReport" >
+    update pd_health_report
+    <set >
+      <if test="reportTime != null" >
+        report_time = #{reportTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reportDetail != null" >
+        report_detail = #{reportDetail,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.mljr.heil.entity.PdHealthReport" >
+    update pd_health_report
+    set report_time = #{reportTime,jdbcType=TIMESTAMP},
+      report_detail = #{reportDetail,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.PdHealthReport" >
+    update pd_health_report
+    set report_time = #{reportTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

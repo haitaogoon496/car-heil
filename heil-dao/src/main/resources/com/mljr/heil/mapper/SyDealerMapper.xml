@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.SyDealerMapper" >
+
+  <delete id="batchDelete" parameterType="com.mljr.heil.base.form.DealerQueryForm">
+    delete from ${tableName}
+    <where>
+      <if test="ruleId != null and ruleId != '' and tableName != 'ca_product_dealer'">
+        AND rule_seq = ${ruleId}
+      </if>
+      <if test="ruleId != null and ruleId != '' and tableName == 'ca_product_dealer'.toString()">
+        AND p_id = ${ruleId}
+      </if>
+      <if test="ruleIds != null and tableName == 'pd_fee_dealer'">
+        AND res_id in
+        <foreach collection="ruleIds" item="item" index="index" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+      </if>
+      <if test="ruleIds != null and tableName == 'ca_product_dealer'">
+        AND p_id in
+        <foreach collection="ruleIds" item="item" index="index" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+      </if>
+      <if test="ruleIds != null and tableName != 'pd_fee_dealer' and tableName != 'ca_product_dealer'">
+        AND rule_seq in
+        <foreach collection="ruleIds" item="item" index="index" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+      </if>
+      <if test="dealerScopes != null">
+        and dealer_code in
+        <foreach collection="dealerScopes" item="item" index="index" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+      </if>
+
+    </where>
+  </delete>
+
+  <insert id="batchInsert" parameterType="com.mljr.heil.form.DealerRuleSetForm">
+    insert into ${tableName}
+    <if test="tableName != 'pd_fee_dealer' and tableName != 'ca_product_dealer' ">
+      (rule_seq, dealer_code, update_time) values
+      <foreach collection="ruleIds" item="item" index="index" separator=",">
+        (#{item}, #{dealerCode},CURRENT_TIMESTAMP )
+      </foreach>
+    </if>
+    <if test="tableName == 'pd_fee_dealer'">
+      (res_id, dealer_code) values
+      <foreach collection="ruleIds" item="item" index="index" separator=",">
+        (#{item}, #{dealerCode} )
+      </foreach>
+    </if>
+    <if test="tableName == 'ca_product_dealer'">
+      (p_id, dealer_code,update_time) values
+      <foreach collection="ruleIds" item="item" index="index" separator=",">
+        (#{item}, #{dealerCode},CURRENT_TIMESTAMP )
+      </foreach>
+    </if>
+  </insert>
+
+
+  <!-- 根据查询关系表，根据指定 id，查询关联的门店Code列表，使用 ${}，不允许前端未经检查的参数传入 -->
+  <select id="queryDealerCodeListByParam" resultType="java.lang.Integer" parameterType="com.mljr.heil.base.form.DealerRefQueryForm">
+    SELECT ${queryName} FROM ${tableName} where ${refIdName} = #{refIdValue}
+  </select>
+
+  <!-- 根据条件查询规则门店关系列表 -->
+  <select id="queryRuleDealerListByParam" resultType="com.mljr.heil.base.entity.BaseDealerRes" parameterType="com.mljr.heil.base.form.RuleRefForm">
+    SELECT a.${masterRefKey} AS ruleSeq, c.dealer_code as dealerCode
+    from ${masterTable} a left join ${slaveTable} c on a.${masterRefKey} = c.${slaveRefKey}
+    WHERE a.IS_ALL_DEALER = 0 AND a.status = 1
+    <if test="classify != null">
+      AND a.classify = #{classify}
+    </if>
+  </select>
+
+  <!-- 查询适用于所有门店的规则ID列表 -->
+  <select id="queryIsAllDealerRuleIdList" resultType="java.lang.Integer" parameterType="com.mljr.heil.base.form.RuleRefForm">
+    SELECT ${masterRefKey} from ${masterTable} WHERE IS_ALL_DEALER = 1 AND status = 1
+  </select>
+
+</mapper>

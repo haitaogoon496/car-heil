@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mljr.heil.mapper.ProductMapper" >
+  <resultMap id="BaseResultMap" type="com.mljr.heil.entity.Product" >
+    <id column="P_ID" property="pId" jdbcType="INTEGER" />
+    <result column="PRODUCT_COE" property="productCoe" jdbcType="VARCHAR" />
+    <result column="YEAR_" property="year" jdbcType="INTEGER" />
+    <result column="P_NAME" property="pName" jdbcType="VARCHAR" />
+    <result column="TYPE_" property="type" jdbcType="INTEGER" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="LAST_UPDATE" property="lastUpdate" jdbcType="TIMESTAMP" />
+    <result column="BEGIN_TIME" property="beginTime" jdbcType="DATE" />
+    <result column="END_TIME" property="endTime" jdbcType="DATE" />
+    <result column="VER" property="ver" jdbcType="SMALLINT" />
+    <result column="STATUS" property="status" jdbcType="SMALLINT" />
+    <result column="DESP" property="desp" jdbcType="VARCHAR" />
+    <result column="IS_ALL_DEALER" property="isAllDealer" jdbcType="CHAR" />
+    <result column="IS_BRAND" property="isBrand" jdbcType="CHAR" />
+    <result column="IS_SERIES" property="isSeries" jdbcType="CHAR" />
+    <result column="IS_STYLES" property="isStyles" jdbcType="CHAR" />
+    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+    <result column="USER_ID" property="userId" jdbcType="VARCHAR" />
+    <result column="CARRY" property="carry" jdbcType="CHAR" />
+    <result column="PRECISIONS" property="precisions" jdbcType="DECIMAL" />
+    <result column="P_CLASS_NAME" property="typeName" jdbcType="VARCHAR" />
+    <result column="fund_name" property="fundName"/>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    P_ID, PRODUCT_COE, YEAR_, P_NAME, TYPE_, p.CREATE_TIME, LAST_UPDATE, BEGIN_TIME, END_TIME,
+    VER, p.STATUS, DESP, IS_ALL_DEALER, IS_BRAND, IS_SERIES, IS_STYLES, USER_NAME, USER_ID,
+    CARRY, PRECISIONS
+  </sql>
+
+  <sql id="Base_Column_List2" >
+    P_ID, PRODUCT_COE, YEAR_, P_NAME, TYPE_, p.CREATE_TIME, LAST_UPDATE, BEGIN_TIME, END_TIME,
+    VER, p.STATUS, DESP, IS_ALL_DEALER, IS_BRAND, IS_SERIES, IS_STYLES, USER_NAME, USER_ID,
+    CARRY, PRECISIONS, P_CLASS_NAME
+  </sql>
+
+  <sql id="queryCondition">
+    <where>
+      <if test="form != null" >
+        <if test="form.id != null and form.id != ''">
+          and p.P_ID=#{form.id}
+        </if>
+        <if test="form.name != null and form.name != ''">
+          and p.P_NAME LIKE concat('%',#{form.name},'%')
+        </if>
+        <if test="form.code != null and form.code != ''">
+          and p.PRODUCT_COE=#{form.code}
+        </if>
+        <if test="form.year != null and form.year != ''">
+          and p.YEAR_=#{form.year}
+        </if>
+        <if test="form.status != null">
+          and p.STATUS=#{form.status}
+        </if>
+        <if test="form.type != null and form.type != ''">
+          and p.TYPE_=#{form.type}
+        </if>
+        <if test="form.beginTime != null and form.beginTime != ''">
+          and p.BEGIN_TIME >= #{form.beginTime}
+        </if>
+        <if test="form.endTime != null and form.endTime != ''">
+          <![CDATA[ and p.END_TIME <= #{form.endTime} ]]>
+        </if>
+        <if test="form.statusScope != null  and form.statusScope.size() > 0">
+          and p.STATUS in
+          <foreach collection="form.statusScope" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+        </if>
+        <if test="form.fundName != null and form.fundName != ''">
+           and pd.fund_name LIKE concat('%',#{form.fundName},'%')
+        </if>
+        <if test="form.typeName != null and form.typeName != ''">
+          and t.P_CLASS_NAME=#{form.typeName}
+        </if>
+        <if test="form.tag != null and form.tag !=''">
+          AND EXISTS ( SELECT 1 FROM pd_tags b WHERE b.source_id = p.p_id AND b.buz_type = 10 AND FIND_IN_SET(#{form.tag},b.tags))
+        </if>
+        <if test="form.tagList != null and form.tagList.size > 0">
+          AND EXISTS ( SELECT 1 FROM pd_tags b WHERE b.source_id = p.p_id AND b.buz_type = 10
+          <foreach collection="form.tagList" item="item" index="index">
+            AND FIND_IN_SET(#{item},b.tags)
+            <if test="index == form.tagList.size()-1">
+              )
+            </if>
+          </foreach>
+        </if>
+        <if test="form.isOld != null and form.isOld != ''"  >
+          AND EXISTS (
+              SELECT 1 FROM ca_product_props b WHERE b.P_ID = p.P_ID
+                AND PROP_NAME='isOld' AND
+                (
+                CASE
+                WHEN (isnull(b.PROP_VALUE)OR (b.PROP_VALUE = ''))
+                THEN
+                FIND_IN_SET( #{form.isOld}, '0,1')
+                ELSE
+                FIND_IN_SET( #{form.isOld}, b.PROP_VALUE)
+                END
+                )
+          )
+        </if>
+        <if test="form.isLcv != null and form.isLcv != ''">
+          AND EXISTS (
+            SELECT 1 FROM ca_product_props c WHERE c.P_ID = p.P_ID
+              AND PROP_NAME='isLcv' AND
+                (
+                CASE
+                WHEN (isnull(c.PROP_VALUE)OR (c.PROP_VALUE = ''))
+                THEN
+                FIND_IN_SET( #{form.isLcv}, '0,1,2,3')
+                ELSE
+                FIND_IN_SET( #{form.isLcv}, c.PROP_VALUE)
+                END
+                )
+          )
+        </if>
+        <if test="form.dealerCode !=null and form.dealerCode != '' and form.bindFlag==true">
+          AND ( EXISTS (
+          SELECT
+          1
+          FROM
+          ca_product_dealer b
+          WHERE
+          b.p_id = p.p_id
+          AND  b.dealer_code = #{form.dealerCode}
+          )
+          or p.IS_ALL_DEALER = 1)
+        </if>
+        <if test="form.dealerCode !=null and form.dealerCode != '' and form.bindFlag != true">
+          AND NOT EXISTS (
+          SELECT
+          1
+          FROM
+          ca_product_dealer b
+          WHERE
+          b.p_id = p.p_id
+          AND  b.dealer_code = #{form.dealerCode}
+          )
+          and p.IS_ALL_DEALER = 0
+        </if>
+      </if>
+    </where>
+  </sql>
+
+  <select id="pageQuery" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    select
+    <include refid="Base_Column_List2" />,
+    pd.fund_name
+    from ca_product p LEFT JOIN ca_product_type t ON p.TYPE_ = t.P_TYPE_ID LEFT  JOIN pd_fund pd ON p.fund_id = pd.id
+    <include refid="queryCondition"/>
+    ORDER BY LAST_UPDATE DESC
+    <if test="paging == true">
+      limit #{limit} offset #{start}
+    </if>
+
+  </select>
+
+  <select id="queryCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select COUNT(1) from ca_product p LEFT JOIN ca_product_type t ON p.TYPE_ = t.P_TYPE_ID LEFT JOIN pd_fund pd ON p.fund_id = pd.id
+    <include refid="queryCondition"/>
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />,
+    pd.fund_name
+    from ca_product p LEFT JOIN pd_fund pd ON p.fund_id = pd.id
+    where P_ID = #{pId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from ca_product
+    where P_ID = #{pId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mljr.heil.entity.Product" keyProperty="pId" useGeneratedKeys="true">
+    insert into ca_product (PRODUCT_COE, YEAR_,
+      P_NAME, TYPE_, CREATE_TIME, 
+      LAST_UPDATE, BEGIN_TIME, END_TIME, 
+      VER, STATUS, DESP, 
+      IS_ALL_DEALER, IS_BRAND, IS_SERIES, 
+      IS_STYLES, USER_NAME, USER_ID, 
+      CARRY, PRECISIONS)
+    values (#{productCoe,jdbcType=VARCHAR}, #{year,jdbcType=INTEGER},
+      #{pName,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{lastUpdate,jdbcType=TIMESTAMP}, #{beginTime,jdbcType=DATE}, #{endTime,jdbcType=DATE}, 
+      #{ver,jdbcType=SMALLINT}, #{status,jdbcType=SMALLINT}, #{desp,jdbcType=VARCHAR}, 
+      #{isAllDealer,jdbcType=CHAR}, #{isBrand,jdbcType=CHAR}, #{isSeries,jdbcType=CHAR}, 
+      #{isStyles,jdbcType=CHAR}, #{userName,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
+      #{carry,jdbcType=CHAR}, #{precisions,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mljr.heil.entity.Product" keyProperty="pId" useGeneratedKeys="true">
+    insert into ca_product
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pId != null" >
+        P_ID,
+      </if>
+      <if test="productCoe != null" >
+        PRODUCT_COE,
+      </if>
+      <if test="year != null" >
+        YEAR_,
+      </if>
+      <if test="pName != null" >
+        P_NAME,
+      </if>
+      <if test="type != null" >
+        TYPE_,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+      <if test="lastUpdate != null" >
+        LAST_UPDATE,
+      </if>
+      <if test="beginTime != null" >
+        BEGIN_TIME,
+      </if>
+      <if test="endTime != null" >
+        END_TIME,
+      </if>
+      <if test="ver != null" >
+        VER,
+      </if>
+      <if test="status != null" >
+        STATUS,
+      </if>
+      <if test="desp != null" >
+        DESP,
+      </if>
+      <if test="isAllDealer != null" >
+        IS_ALL_DEALER,
+      </if>
+      <if test="isBrand != null" >
+        IS_BRAND,
+      </if>
+      <if test="isSeries != null" >
+        IS_SERIES,
+      </if>
+      <if test="isStyles != null" >
+        IS_STYLES,
+      </if>
+      <if test="userName != null" >
+        USER_NAME,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="carry != null" >
+        CARRY,
+      </if>
+      <if test="precisions != null" >
+        PRECISIONS,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pId != null" >
+        #{pId,jdbcType=INTEGER},
+      </if>
+      <if test="productCoe != null" >
+        #{productCoe,jdbcType=VARCHAR},
+      </if>
+      <if test="year != null" >
+        #{year,jdbcType=INTEGER},
+      </if>
+      <if test="pName != null" >
+        #{pName,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdate != null" >
+        #{lastUpdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="beginTime != null" >
+        #{beginTime,jdbcType=DATE},
+      </if>
+      <if test="endTime != null" >
+        #{endTime,jdbcType=DATE},
+      </if>
+      <if test="ver != null" >
+        #{ver,jdbcType=SMALLINT},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="desp != null" >
+        #{desp,jdbcType=VARCHAR},
+      </if>
+      <if test="isAllDealer != null" >
+        #{isAllDealer,jdbcType=CHAR},
+      </if>
+      <if test="isBrand != null" >
+        #{isBrand,jdbcType=CHAR},
+      </if>
+      <if test="isSeries != null" >
+        #{isSeries,jdbcType=CHAR},
+      </if>
+      <if test="isStyles != null" >
+        #{isStyles,jdbcType=CHAR},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="carry != null" >
+        #{carry,jdbcType=CHAR},
+      </if>
+      <if test="precisions != null" >
+        #{precisions,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mljr.heil.entity.Product" >
+    update ca_product
+    <set >
+      <if test="productCoe != null" >
+        PRODUCT_COE = #{productCoe,jdbcType=VARCHAR},
+      </if>
+      <if test="year != null" >
+        YEAR_ = #{year,jdbcType=INTEGER},
+      </if>
+      <if test="pName != null" >
+        P_NAME = #{pName,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        TYPE_ = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdate != null" >
+        LAST_UPDATE = #{lastUpdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="beginTime != null" >
+        BEGIN_TIME = #{beginTime,jdbcType=DATE},
+      </if>
+      <if test="endTime != null" >
+        END_TIME = #{endTime,jdbcType=DATE},
+      </if>
+      <if test="ver != null" >
+        VER = #{ver,jdbcType=SMALLINT},
+      </if>
+      <if test="status != null" >
+        STATUS = #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="desp != null" >
+        DESP = #{desp,jdbcType=VARCHAR},
+      </if>
+      <if test="isAllDealer != null" >
+        IS_ALL_DEALER = #{isAllDealer,jdbcType=CHAR},
+      </if>
+      <if test="isBrand != null" >
+        IS_BRAND = #{isBrand,jdbcType=CHAR},
+      </if>
+      <if test="isSeries != null" >
+        IS_SERIES = #{isSeries,jdbcType=CHAR},
+      </if>
+      <if test="isStyles != null" >
+        IS_STYLES = #{isStyles,jdbcType=CHAR},
+      </if>
+      <if test="userName != null" >
+        USER_NAME = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="carry != null" >
+        CARRY = #{carry,jdbcType=CHAR},
+      </if>
+      <if test="precisions != null" >
+        PRECISIONS = #{precisions,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where P_ID = #{pId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mljr.heil.entity.Product" >
+    update ca_product
+    set PRODUCT_COE = #{productCoe,jdbcType=VARCHAR},
+      YEAR_ = #{year,jdbcType=INTEGER},
+      P_NAME = #{pName,jdbcType=VARCHAR},
+      TYPE_ = #{type,jdbcType=INTEGER},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      LAST_UPDATE = #{lastUpdate,jdbcType=TIMESTAMP},
+      BEGIN_TIME = #{beginTime,jdbcType=DATE},
+      END_TIME = #{endTime,jdbcType=DATE},
+      VER = #{ver,jdbcType=SMALLINT},
+      STATUS = #{status,jdbcType=SMALLINT},
+      DESP = #{desp,jdbcType=VARCHAR},
+      IS_ALL_DEALER = #{isAllDealer,jdbcType=CHAR},
+      IS_BRAND = #{isBrand,jdbcType=CHAR},
+      IS_SERIES = #{isSeries,jdbcType=CHAR},
+      IS_STYLES = #{isStyles,jdbcType=CHAR},
+      USER_NAME = #{userName,jdbcType=VARCHAR},
+      USER_ID = #{userId,jdbcType=VARCHAR},
+      CARRY = #{carry,jdbcType=CHAR},
+      PRECISIONS = #{precisions,jdbcType=DECIMAL}
+    where P_ID = #{pId,jdbcType=INTEGER}
+  </update>
+
+
+  <!-- 非分页查询 -->
+  <sql id="queryListCondition">
+    <where>
+      <if test="productIdList != null">
+        and p.p_id in
+        <foreach collection="productIdList" item="item" index="index" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+      </if>
+      <if test="status != null">
+        and p.status = #{status}
+      </if>
+      <if test="isAllDealer != null">
+        and p.IS_ALL_DEALER = #{isAllDealer}
+      </if>
+    </where>
+  </sql>
+
+  <!-- 查询列表 -->
+  <select id="queryList" resultMap="BaseResultMap" parameterType="com.mljr.heil.form.ProductForm">
+    select
+    <include refid="Base_Column_List" />
+    from ca_product p
+    <include refid="queryListCondition"/>
+  </select>
+
+  <update id="bindProductForFund" parameterType="com.mljr.heil.form.ProductForm">
+    update ca_product set fund_id = #{fundId}
+    where P_ID in
+    <foreach collection="productIdList" item="item" open="(" close=")" separator=",">
+        #{item}
+    </foreach>
+  </update>
+
+  <select id="queryProductNotSerFin" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM ca_product p WHERE p.status = 1 AND p.P_ID NOT IN (
+    SELECT
+    DISTINCT a.P_ID
+    FROM
+    ca_product a
+    INNER JOIN pd_rule_product c ON a.P_ID = c.product_id AND c.classify = 1
+    INNER JOIN ca_ser_fin_rule e ON c.rule_id = e.RULE_SEQ AND e.status =1
+    WHERE
+    a.`STATUS` = 1
+    )
+  </select>
+
+
+  <select id="queryProductNotGpsOrRate" resultMap="BaseResultMap" parameterType="java.lang.String">
+    SELECT
+    <include refid="Base_Column_List"/>
+    from ca_product p where p.status = 1 AND p.p_id not in (
+    SELECT
+    a.P_ID
+    from ca_product a
+    inner join pd_rule_product b
+    on a.P_ID = b.product_id
+    where  b.classify = #{classify}and p.`STATUS` = 1 )
+    and p.`STATUS` = 1
+  </select>
+
+  <select id="queryProductsForDealer" resultMap="BaseResultMap" parameterType="com.lyqc.base.page.PageForm">
+    SELECT
+    <include refid="Base_Column_List2" />,
+    pd.fund_name
+    FROM
+    ca_product p LEFT JOIN ca_product_type t ON p.TYPE_ = t.P_TYPE_ID LEFT  JOIN pd_fund pd ON p.fund_id = pd.id
+    <include refid="queryCondition"/>
+
+    <if test="paging == true">
+      limit #{limit} offset #{start}
+    </if>
+
+  </select>
+
+  <select id="queryProductsForDealerCount" resultType="int" parameterType="com.lyqc.base.page.PageForm">
+    select
+    COUNT(1)
+    FROM
+    ca_product p LEFT JOIN ca_product_type t ON p.TYPE_ = t.P_TYPE_ID LEFT  JOIN pd_fund pd ON p.fund_id = pd.id
+    <include refid="queryCondition"/>
+  </select>
+</mapper>

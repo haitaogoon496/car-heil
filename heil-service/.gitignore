@@ -1,0 +1,12 @@
+/target/
+/.settings/
+/.classpath
+/.project
+/src/main/resources/rebel.xml
+/bin/
+*.iml
+/.idea/
+*.ipr
+*.iws
+.DS_Store
+catalina.base_IS_UNDEFINED
