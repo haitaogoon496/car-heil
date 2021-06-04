@@ -39,7 +39,7 @@
         <fastjson.version>1.1.43</fastjson.version>
         <spring-boot-starter-data-redis.version>1.5.7.RELEASE</spring-boot-starter-data-redis.version>
         <spring-boot-starter-data-mongodb.version>1.5.7.RELEASE</spring-boot-starter-data-mongodb.version>
-        <httpclient.version>4.5.3</httpclient.version>
+        <httpclient.version>4.5.13</httpclient.version>
         <spring-boot-starter-aop.version>1.5.7.RELEASE</spring-boot-starter-aop.version>
         <guava.version>19.0</guava.version>
         <lyqc.base.version>1.5.0-SNAPSHOT</lyqc.base.version>
